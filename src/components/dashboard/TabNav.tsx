@@ -1,5 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LayoutGrid, TrendingUp, History, MessageCircle } from 'lucide-react';
+import { LayoutGrid, TrendingUp, History, MessageCircle, FileSearch } from 'lucide-react';
 
 interface TabNavProps {
   activeTab: string;
@@ -9,7 +9,7 @@ interface TabNavProps {
 export function TabNav({ activeTab, onTabChange }: TabNavProps) {
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-      <TabsList className="grid w-full max-w-lg grid-cols-4 bg-card">
+      <TabsList className="grid w-full max-w-2xl grid-cols-5 bg-card">
         <TabsTrigger 
           value="overview" 
           className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -30,6 +30,13 @@ export function TabNav({ activeTab, onTabChange }: TabNavProps) {
         >
           <History className="h-4 w-4" />
           <span className="hidden sm:inline">History</span>
+        </TabsTrigger>
+        <TabsTrigger 
+          value="scan"
+          className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+        >
+          <FileSearch className="h-4 w-4" />
+          <span className="hidden sm:inline">Scan Docs</span>
         </TabsTrigger>
         <TabsTrigger 
           value="ask"
