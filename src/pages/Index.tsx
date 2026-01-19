@@ -8,6 +8,7 @@ import { SpendingHeatmap } from '@/components/dashboard/SpendingHeatmap';
 import { CategoryBreakdownChart } from '@/components/dashboard/CategoryBreakdownChart';
 import { TransactionList } from '@/components/dashboard/TransactionList';
 import { AskAI } from '@/components/dashboard/AskAI';
+import { ScanDocument } from '@/components/dashboard/ScanDocument';
 import { PrivacyBanner } from '@/components/dashboard/PrivacyBanner';
 import {
   generateMockTransactions,
@@ -122,6 +123,13 @@ const Index = () => {
             transactions={transactions} 
             onAddTag={handleAddTag}
           />
+        )}
+
+        {/* Scan Documents Tab */}
+        {activeTab === 'scan' && (
+          <div className="mx-auto max-w-4xl">
+            <ScanDocument />
+          </div>
         )}
 
         {/* Ask AI Tab */}
