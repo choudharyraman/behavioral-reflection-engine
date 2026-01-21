@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { MessageCircle, Send, Sparkles, Loader2, Mic } from 'lucide-react';
+import { Send, Sparkles, Loader2, Mic } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Message {
@@ -76,70 +76,84 @@ export function MobileAskAI() {
       {/* Messages area */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 py-4 space-y-4"
+        className="flex-1 overflow-y-auto px-5 py-6 space-y-4"
       >
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center py-8">
-            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10 mb-6">
-              <Sparkles className="h-10 w-10 text-primary" />
+          <div className="flex flex-col items-center justify-center h-full text-center py-8 animate-fade-in">
+            <div className="relative">
+              <div className="flex h-24 w-24 items-center justify-center rounded-[2rem] bg-gradient-to-br from-primary/20 to-primary/10 mb-6">
+                <Sparkles className="h-12 w-12 text-primary" strokeWidth={1.5} />
+              </div>
+              <div className="absolute -inset-4 rounded-[2.5rem] bg-primary/5 blur-xl -z-10" />
             </div>
-            <h2 className="text-xl font-semibold text-foreground">
+            
+            <h2 className="text-2xl font-semibold text-foreground tracking-tight">
               Ask me anything
             </h2>
-            <p className="mt-2 text-sm text-muted-foreground max-w-xs">
+            <p className="mt-2 text-base text-muted-foreground max-w-xs leading-relaxed">
               I can help you understand patterns, find insights, and reflect on your spending.
             </p>
             
-            <div className="mt-8 flex flex-wrap justify-center gap-2">
-              {suggestedQuestions.map((question) => (
-                <Button
-                  key={question}
-                  variant="outline"
-                  size="sm"
-                  className="h-auto py-2 px-3 rounded-xl text-xs whitespace-normal text-left"
-                  onClick={() => handleSend(question)}
-                >
-                  {question}
-                </Button>
-              ))}
+            <div className="mt-10 w-full max-w-sm space-y-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Try asking
+              </p>
+              <div className="flex flex-col gap-2">
+                {suggestedQuestions.map((question, idx) => (
+                  <Button
+                    key={question}
+                    variant="outline"
+                    className="h-auto py-3 px-4 rounded-2xl text-sm text-left justify-start border-border/50 hover:bg-primary/5 hover:border-primary/30 hover:text-primary transition-all animate-fade-in"
+                    style={{ animationDelay: `${idx * 100}ms` }}
+                    onClick={() => handleSend(question)}
+                  >
+                    {question}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
         ) : (
-          messages.map((message) => (
+          messages.map((message, idx) => (
             <div
               key={message.id}
               className={cn(
-                "flex",
+                "flex animate-fade-in",
                 message.role === 'user' ? 'justify-end' : 'justify-start'
               )}
+              style={{ animationDelay: `${idx * 50}ms` }}
             >
               <div
                 className={cn(
-                  "max-w-[85%] rounded-2xl px-4 py-3",
+                  "max-w-[85%] rounded-3xl px-5 py-3.5",
                   message.role === 'user'
-                    ? 'bg-primary text-primary-foreground rounded-br-md'
-                    : 'bg-card text-foreground rounded-bl-md shadow-sm'
+                    ? 'bg-foreground text-background rounded-br-lg'
+                    : 'bg-card text-foreground rounded-bl-lg shadow-sm'
                 )}
               >
-                <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+                <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{message.content}</p>
               </div>
             </div>
           ))
         )}
 
         {isLoading && (
-          <div className="flex justify-start">
-            <div className="flex items-center gap-2 rounded-2xl bg-card px-4 py-3 shadow-sm">
-              <Loader2 className="h-4 w-4 animate-spin text-primary" />
-              <span className="text-sm text-muted-foreground">Analyzing...</span>
+          <div className="flex justify-start animate-fade-in">
+            <div className="flex items-center gap-3 rounded-3xl bg-card px-5 py-4 shadow-sm">
+              <div className="flex gap-1">
+                <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+              <span className="text-sm text-muted-foreground">Thinking...</span>
             </div>
           </div>
         )}
       </div>
 
       {/* Input area - Fixed at bottom */}
-      <div className="sticky bottom-20 bg-background border-t border-border px-4 py-3 safe-area-inset-bottom">
-        <div className="flex items-center gap-2">
+      <div className="sticky bottom-20 glass border-t border-border/50 px-5 py-4 safe-area-inset-bottom">
+        <div className="flex items-center gap-3">
           <div className="relative flex-1">
             <Input
               placeholder="Ask about your spending..."
@@ -151,21 +165,21 @@ export function MobileAskAI() {
                   handleSend();
                 }
               }}
-              className="h-12 rounded-xl bg-card border-0 pr-12"
+              className="h-14 rounded-2xl bg-card border-0 pr-12 text-base shadow-sm"
             />
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-xl hover:bg-primary/10"
             >
-              <Mic className="h-5 w-5 text-muted-foreground" />
+              <Mic className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
             </Button>
           </div>
           <Button 
             onClick={() => handleSend()} 
             disabled={!input.trim() || isLoading}
             size="icon"
-            className="h-12 w-12 rounded-xl shrink-0"
+            className="h-14 w-14 rounded-2xl bg-foreground hover:bg-foreground/90 shadow-md shrink-0"
           >
             <Send className="h-5 w-5" />
           </Button>

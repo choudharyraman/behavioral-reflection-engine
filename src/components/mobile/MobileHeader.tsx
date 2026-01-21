@@ -1,4 +1,4 @@
-import { Bell, User, Sparkles } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -10,27 +10,29 @@ export function MobileHeader({ userName = 'User' }: MobileHeaderProps) {
   const greeting = getGreeting();
   
   return (
-    <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg">
-      <div className="flex items-center justify-between px-4 py-4">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-12 w-12 ring-2 ring-primary/20">
+    <header className="sticky top-0 z-40 glass safe-area-inset-top">
+      <div className="flex items-center justify-between px-6 py-5">
+        <div className="flex items-center gap-4">
+          <Avatar className="h-12 w-12 ring-2 ring-primary/10 shadow-md">
             <AvatarImage src="" />
-            <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+            <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold text-lg">
               {userName.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div>
-            <p className="text-sm text-muted-foreground">{greeting}</p>
-            <h1 className="text-lg font-semibold text-foreground">{userName}</h1>
+            <p className="text-sm font-medium text-muted-foreground tracking-wide">{greeting}</p>
+            <h1 className="text-xl font-semibold text-foreground tracking-tight">{userName}</h1>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-full">
-            <Bell className="h-5 w-5" />
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />
-          </Button>
-        </div>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="relative h-11 w-11 rounded-full bg-card shadow-sm hover:shadow-md transition-shadow"
+        >
+          <Bell className="h-5 w-5 text-foreground" strokeWidth={1.5} />
+          <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-primary ring-2 ring-background" />
+        </Button>
       </div>
     </header>
   );
@@ -38,7 +40,7 @@ export function MobileHeader({ userName = 'User' }: MobileHeaderProps) {
 
 function getGreeting(): string {
   const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning,';
-  if (hour < 17) return 'Good afternoon,';
-  return 'Good evening,';
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
 }

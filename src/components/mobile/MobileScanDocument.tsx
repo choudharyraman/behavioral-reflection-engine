@@ -1,15 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { 
   FileText, 
-  Upload, 
   Loader2, 
   TrendingUp, 
-  TrendingDown, 
-  Minus,
   Sparkles,
   Shield,
   CheckCircle2,
@@ -21,7 +17,8 @@ import {
   Heart,
   X,
   Camera,
-  FolderOpen
+  FolderOpen,
+  ArrowRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -61,12 +58,12 @@ interface AnalysisResult {
 }
 
 const categoryIcons: Record<string, React.ReactNode> = {
-  food: <Utensils className="h-4 w-4" />,
-  transport: <Car className="h-4 w-4" />,
-  shopping: <ShoppingBag className="h-4 w-4" />,
-  entertainment: <Film className="h-4 w-4" />,
-  bills: <Receipt className="h-4 w-4" />,
-  health: <Heart className="h-4 w-4" />,
+  food: <Utensils className="h-4 w-4" strokeWidth={1.5} />,
+  transport: <Car className="h-4 w-4" strokeWidth={1.5} />,
+  shopping: <ShoppingBag className="h-4 w-4" strokeWidth={1.5} />,
+  entertainment: <Film className="h-4 w-4" strokeWidth={1.5} />,
+  bills: <Receipt className="h-4 w-4" strokeWidth={1.5} />,
+  health: <Heart className="h-4 w-4" strokeWidth={1.5} />,
 };
 
 const categoryGradients: Record<string, string> = {
@@ -79,9 +76,9 @@ const categoryGradients: Record<string, string> = {
 };
 
 const confidenceStyles = {
-  strong: 'bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))]',
-  emerging: 'bg-[hsl(var(--warning))] text-[hsl(var(--warning-foreground))]',
-  weak: 'bg-muted text-muted-foreground',
+  strong: 'bg-[hsl(var(--success))]/10 text-[hsl(var(--success))] border-[hsl(var(--success))]/20',
+  emerging: 'bg-[hsl(var(--warning))]/10 text-[hsl(var(--warning))] border-[hsl(var(--warning))]/20',
+  weak: 'bg-muted text-muted-foreground border-border',
 };
 
 export function MobileScanDocument() {
@@ -119,7 +116,7 @@ export function MobileScanDocument() {
       if (data.error) throw new Error(data.error);
 
       setAnalysisResult(data);
-      toast.success('Document analyzed successfully!');
+      toast.success('Analysis complete!');
     } catch (error) {
       console.error('Analysis error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to analyze document');
@@ -186,39 +183,44 @@ export function MobileScanDocument() {
   };
 
   return (
-    <div className="flex flex-col min-h-full pb-24 px-4">
+    <div className="flex flex-col min-h-full pb-24 px-5">
       {/* Upload Section */}
       {!analysisResult && !isAnalyzing && (
-        <div className="flex flex-col items-center justify-center flex-1 py-8">
-          <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10 mb-6">
-            <FileText className="h-10 w-10 text-primary" />
+        <div className="flex flex-col items-center justify-center flex-1 py-12 animate-fade-in">
+          <div className="relative">
+            <div className="flex h-28 w-28 items-center justify-center rounded-[2rem] bg-gradient-to-br from-primary/20 to-primary/10 mb-8">
+              <FileText className="h-14 w-14 text-primary" strokeWidth={1.5} />
+            </div>
+            <div className="absolute -inset-6 rounded-[3rem] bg-primary/5 blur-2xl -z-10" />
           </div>
           
-          <h2 className="text-xl font-semibold text-foreground text-center">
+          <h2 className="text-2xl font-semibold text-foreground text-center tracking-tight">
             Scan Your Statement
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground text-center max-w-xs">
-            Upload your bank statement or spending report for AI-powered analysis
+          <p className="mt-2 text-base text-muted-foreground text-center max-w-xs leading-relaxed">
+            Upload your bank statement for AI-powered behavioral analysis
           </p>
           
-          <div className="mt-8 flex gap-4">
-            <label className="cursor-pointer">
+          <div className="mt-10 flex gap-4 w-full max-w-xs">
+            <label className="cursor-pointer flex-1">
               <input
                 type="file"
                 accept=".pdf,.csv,.txt"
                 onChange={handleFileInput}
                 className="hidden"
               />
-              <div className="flex flex-col items-center gap-2 rounded-2xl bg-card p-6 shadow-sm transition-all active:scale-95">
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary">
-                  <FolderOpen className="h-6 w-6 text-primary-foreground" />
+              <div className="flex flex-col items-center gap-3 rounded-3xl bg-card p-6 shadow-sm transition-all duration-300 card-hover h-full">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-[hsl(260_80%_60%)] shadow-md">
+                  <FolderOpen className="h-6 w-6 text-primary-foreground" strokeWidth={1.5} />
                 </div>
-                <span className="text-sm font-medium text-foreground">Browse Files</span>
-                <span className="text-xs text-muted-foreground">PDF, CSV, TXT</span>
+                <div className="text-center">
+                  <span className="block text-sm font-semibold text-foreground">Browse Files</span>
+                  <span className="text-xs text-muted-foreground">PDF, CSV, TXT</span>
+                </div>
               </div>
             </label>
             
-            <label className="cursor-pointer">
+            <label className="cursor-pointer flex-1">
               <input
                 type="file"
                 accept="image/*"
@@ -226,20 +228,23 @@ export function MobileScanDocument() {
                 onChange={handleFileInput}
                 className="hidden"
               />
-              <div className="flex flex-col items-center gap-2 rounded-2xl bg-card p-6 shadow-sm transition-all active:scale-95">
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-secondary">
-                  <Camera className="h-6 w-6 text-secondary-foreground" />
+              <div className="flex flex-col items-center gap-3 rounded-3xl bg-card p-6 shadow-sm transition-all duration-300 card-hover h-full">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-foreground shadow-md">
+                  <Camera className="h-6 w-6 text-background" strokeWidth={1.5} />
                 </div>
-                <span className="text-sm font-medium text-foreground">Take Photo</span>
-                <span className="text-xs text-muted-foreground">Scan receipt</span>
+                <div className="text-center">
+                  <span className="block text-sm font-semibold text-foreground">Take Photo</span>
+                  <span className="text-xs text-muted-foreground">Scan receipt</span>
+                </div>
               </div>
             </label>
           </div>
           
-          <div className="mt-8 flex items-center gap-3 rounded-2xl bg-primary/5 p-4 max-w-sm">
-            <Shield className="h-5 w-5 shrink-0 text-primary" />
-            <p className="text-xs text-muted-foreground">
-              <span className="font-medium text-foreground">Privacy First:</span> Your document is analyzed securely. We don't store your data.
+          <div className="mt-10 flex items-start gap-3 rounded-3xl bg-primary/5 p-5 max-w-sm">
+            <Shield className="h-5 w-5 shrink-0 text-primary mt-0.5" strokeWidth={1.5} />
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              <span className="font-semibold text-foreground">Privacy First</span><br />
+              Your document is analyzed securely and never stored.
             </p>
           </div>
         </div>
@@ -247,19 +252,20 @@ export function MobileScanDocument() {
 
       {/* Analyzing State */}
       {isAnalyzing && (
-        <div className="flex flex-col items-center justify-center flex-1 py-8">
+        <div className="flex flex-col items-center justify-center flex-1 py-12 animate-fade-in">
           <div className="relative">
-            <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-primary/10">
-              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <div className="flex h-28 w-28 items-center justify-center rounded-[2rem] bg-gradient-to-br from-primary/20 to-primary/10">
+              <Loader2 className="h-14 w-14 animate-spin text-primary" strokeWidth={1.5} />
             </div>
+            <div className="absolute -inset-6 rounded-[3rem] bg-primary/10 blur-2xl animate-pulse -z-10" />
           </div>
           
-          <h2 className="mt-6 text-xl font-semibold text-foreground">Analyzing...</h2>
-          <p className="mt-2 text-sm text-muted-foreground text-center">{fileName}</p>
+          <h2 className="mt-8 text-2xl font-semibold text-foreground tracking-tight">Analyzing</h2>
+          <p className="mt-2 text-base text-muted-foreground text-center truncate max-w-[200px]">{fileName}</p>
           
-          <div className="mt-6 w-full max-w-xs">
+          <div className="mt-8 w-full max-w-xs">
             <Progress value={analysisProgress} className="h-2" />
-            <p className="mt-2 text-xs text-center text-muted-foreground">
+            <p className="mt-3 text-sm text-center text-muted-foreground">
               {analysisProgress}% complete
             </p>
           </div>
@@ -268,35 +274,40 @@ export function MobileScanDocument() {
 
       {/* Results Section */}
       {analysisResult && (
-        <div className="space-y-4 py-4">
+        <div className="space-y-5 py-6 animate-fade-in">
           {/* Success Header */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[hsl(var(--success))]/10">
-                <CheckCircle2 className="h-6 w-6 text-[hsl(var(--success))]" />
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[hsl(var(--success))]/10">
+                <CheckCircle2 className="h-7 w-7 text-[hsl(var(--success))]" strokeWidth={1.5} />
               </div>
               <div>
-                <h2 className="font-semibold text-foreground">Analysis Complete</h2>
-                <p className="text-xs text-muted-foreground truncate max-w-[180px]">{fileName}</p>
+                <h2 className="text-lg font-semibold text-foreground tracking-tight">Analysis Complete</h2>
+                <p className="text-sm text-muted-foreground truncate max-w-[160px]">{fileName}</p>
               </div>
             </div>
-            <Button variant="outline" size="sm" onClick={resetAnalysis} className="rounded-xl">
-              <X className="mr-1 h-4 w-4" />
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={resetAnalysis} 
+              className="rounded-2xl border-border/50 h-10"
+            >
+              <X className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
               New
             </Button>
           </div>
 
           {/* Summary Stats */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-2xl bg-gradient-to-br from-primary to-primary/80 p-4">
-              <p className="text-xs text-primary-foreground/80">Total Spent</p>
-              <p className="text-2xl font-bold text-primary-foreground">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="rounded-3xl bg-gradient-to-br from-primary via-primary to-[hsl(260_80%_60%)] p-5 shadow-lg">
+              <p className="text-sm text-primary-foreground/80">Total Spent</p>
+              <p className="text-3xl font-bold text-primary-foreground tracking-tight mt-1">
                 {formatCurrency(analysisResult.summary.totalSpent)}
               </p>
             </div>
-            <div className="rounded-2xl bg-card p-4">
-              <p className="text-xs text-muted-foreground">Transactions</p>
-              <p className="text-2xl font-bold text-foreground">
+            <div className="rounded-3xl bg-card p-5 shadow-sm">
+              <p className="text-sm text-muted-foreground">Transactions</p>
+              <p className="text-3xl font-bold text-foreground tracking-tight mt-1">
                 {analysisResult.summary.totalTransactions}
               </p>
             </div>
@@ -304,23 +315,29 @@ export function MobileScanDocument() {
 
           {/* Top Categories */}
           {analysisResult.summary.topCategories.length > 0 && (
-            <div className="rounded-2xl bg-card p-4 shadow-sm">
-              <h3 className="font-medium text-foreground mb-3">Top Categories</h3>
-              <div className="space-y-3">
+            <div className="rounded-3xl bg-card p-5 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-foreground tracking-tight">Top Categories</h3>
+                <button className="flex items-center gap-1 text-sm font-medium text-primary">
+                  See all
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="space-y-4">
                 {analysisResult.summary.topCategories.slice(0, 4).map((cat, idx) => (
-                  <div key={idx} className="flex items-center gap-3">
+                  <div key={idx} className="flex items-center gap-4">
                     <div className={cn(
-                      "flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br",
+                      "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br shadow-sm",
                       categoryGradients[cat.name.toLowerCase()] || 'from-muted to-muted/80'
                     )}>
-                      {categoryIcons[cat.name.toLowerCase()] || <Receipt className="h-4 w-4 text-primary-foreground" />}
+                      {categoryIcons[cat.name.toLowerCase()] || <Receipt className="h-4 w-4 text-primary-foreground" strokeWidth={1.5} />}
                     </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between text-sm">
-                        <span className="font-medium capitalize">{cat.name}</span>
-                        <span className="text-muted-foreground">{formatCurrency(cat.amount)}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium text-foreground capitalize">{cat.name}</span>
+                        <span className="text-sm font-semibold text-foreground">{formatCurrency(cat.amount)}</span>
                       </div>
-                      <Progress value={cat.percentage} className="mt-1 h-1.5" />
+                      <Progress value={cat.percentage} className="mt-2 h-1.5" />
                     </div>
                   </div>
                 ))}
@@ -331,19 +348,23 @@ export function MobileScanDocument() {
           {/* Patterns */}
           {analysisResult.patterns.length > 0 && (
             <div className="space-y-3">
-              <h3 className="font-medium text-foreground flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-primary" />
-                Detected Patterns
-              </h3>
-              {analysisResult.patterns.slice(0, 3).map((pattern) => (
-                <div key={pattern.id} className="rounded-2xl bg-card p-4 shadow-sm">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-primary" strokeWidth={1.5} />
+                <h3 className="font-semibold text-foreground tracking-tight">Detected Patterns</h3>
+              </div>
+              {analysisResult.patterns.slice(0, 3).map((pattern, idx) => (
+                <div 
+                  key={pattern.id} 
+                  className="rounded-3xl bg-card p-5 shadow-sm card-hover"
+                  style={{ animationDelay: `${idx * 50}ms` }}
+                >
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium text-foreground">{pattern.title}</h4>
-                    <Badge className={cn("text-[10px]", confidenceStyles[pattern.confidence])}>
+                    <h4 className="font-semibold text-foreground">{pattern.title}</h4>
+                    <span className={cn("rounded-full border px-2.5 py-0.5 text-[10px] font-medium", confidenceStyles[pattern.confidence])}>
                       {pattern.confidence}
-                    </Badge>
+                    </span>
                   </div>
-                  <p className="text-sm text-muted-foreground">{pattern.description}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{pattern.description}</p>
                 </div>
               ))}
             </div>
@@ -352,16 +373,20 @@ export function MobileScanDocument() {
           {/* Insights */}
           {analysisResult.insights.length > 0 && (
             <div className="space-y-3">
-              <h3 className="font-medium text-foreground flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-primary" />
-                Behavioral Insights
-              </h3>
-              {analysisResult.insights.slice(0, 3).map((insight) => (
-                <div key={insight.id} className="rounded-2xl border-l-4 border-primary bg-card p-4">
-                  <h4 className="font-medium text-foreground">{insight.title}</h4>
-                  <p className="mt-1 text-sm text-muted-foreground">{insight.description}</p>
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" strokeWidth={1.5} />
+                <h3 className="font-semibold text-foreground tracking-tight">Behavioral Insights</h3>
+              </div>
+              {analysisResult.insights.slice(0, 3).map((insight, idx) => (
+                <div 
+                  key={insight.id} 
+                  className="rounded-3xl border-l-4 border-primary bg-card p-5 shadow-sm card-hover"
+                  style={{ animationDelay: `${idx * 50}ms` }}
+                >
+                  <h4 className="font-semibold text-foreground">{insight.title}</h4>
+                  <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{insight.description}</p>
                   {insight.actionable && (
-                    <p className="mt-2 text-sm font-medium text-primary">{insight.actionable}</p>
+                    <p className="mt-3 text-sm font-medium text-primary">{insight.actionable}</p>
                   )}
                 </div>
               ))}

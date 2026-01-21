@@ -1,6 +1,5 @@
 import { SpendingPattern, TransactionCategory } from '@/types/transaction';
 import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
 import { 
   Utensils, 
   Car, 
@@ -11,7 +10,8 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
-  ChevronRight
+  ChevronRight,
+  Sparkles
 } from 'lucide-react';
 
 interface MobilePatternListProps {
@@ -40,23 +40,36 @@ const categoryGradients: Record<TransactionCategory, string> = {
 };
 
 const confidenceBadges = {
-  strong: { label: 'Strong', variant: 'default' as const, className: 'bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))]' },
-  emerging: { label: 'Emerging', variant: 'secondary' as const, className: 'bg-[hsl(var(--warning))] text-[hsl(var(--warning-foreground))]' },
-  weak: { label: 'New', variant: 'outline' as const, className: '' },
+  strong: { 
+    label: 'Strong', 
+    className: 'bg-[hsl(var(--success))]/10 text-[hsl(var(--success))] border-[hsl(var(--success))]/20' 
+  },
+  emerging: { 
+    label: 'Emerging', 
+    className: 'bg-[hsl(var(--warning))]/10 text-[hsl(var(--warning))] border-[hsl(var(--warning))]/20' 
+  },
+  weak: { 
+    label: 'New', 
+    className: 'bg-muted text-muted-foreground border-border' 
+  },
 };
 
 export function MobilePatternList({ patterns, onPatternClick }: MobilePatternListProps) {
   return (
-    <div className="space-y-3 px-4 pb-24">
+    <div className="space-y-4 px-5 pb-24">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-foreground">Detected Patterns</h2>
-        <Badge variant="secondary" className="bg-primary/10 text-primary">
-          {patterns.length} found
-        </Badge>
+        <div>
+          <h2 className="text-xl font-semibold text-foreground tracking-tight">Patterns</h2>
+          <p className="text-sm text-muted-foreground">Behaviors we've detected</p>
+        </div>
+        <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5">
+          <Sparkles className="h-3.5 w-3.5 text-primary" />
+          <span className="text-xs font-medium text-primary">{patterns.length} found</span>
+        </div>
       </div>
       
       <div className="space-y-3">
-        {patterns.map((pattern) => {
+        {patterns.map((pattern, idx) => {
           const Icon = categoryIcons[pattern.category];
           const TrendIcon = pattern.trend === 'increasing' ? TrendingUp : 
                            pattern.trend === 'decreasing' ? TrendingDown : Minus;
@@ -66,42 +79,48 @@ export function MobilePatternList({ patterns, onPatternClick }: MobilePatternLis
             <div
               key={pattern.id}
               onClick={() => onPatternClick(pattern)}
-              className="group flex items-center gap-4 rounded-2xl bg-card p-4 shadow-sm transition-all active:scale-[0.98]"
+              className="group flex items-center gap-4 rounded-3xl bg-card p-4 shadow-sm transition-all duration-300 card-hover animate-fade-in"
+              style={{ animationDelay: `${idx * 50}ms` }}
             >
               <div className={cn(
-                "flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br",
+                "flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br shadow-sm",
                 categoryGradients[pattern.category]
               )}>
-                <Icon className="h-6 w-6 text-primary-foreground" />
+                <Icon className="h-6 w-6 text-primary-foreground" strokeWidth={1.5} />
               </div>
               
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-medium text-foreground truncate">{pattern.title}</h3>
-                  <Badge className={cn("text-[10px] shrink-0", badge.className)}>
+                  <h3 className="font-semibold text-foreground truncate tracking-tight">{pattern.title}</h3>
+                  <span className={cn(
+                    "shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium",
+                    badge.className
+                  )}>
                     {badge.label}
-                  </Badge>
+                  </span>
                 </div>
                 <p className="mt-0.5 text-sm text-muted-foreground line-clamp-1">
                   {pattern.description}
                 </p>
+                
+                {/* Stats row */}
                 <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
                   <span className="font-semibold text-foreground">₹{pattern.averageAmount}</span>
-                  <span>•</span>
+                  <span className="text-border">•</span>
                   <span>{pattern.timeRange}</span>
-                  <span>•</span>
+                  <span className="text-border">•</span>
                   <span className="flex items-center gap-1">
                     <TrendIcon className={cn(
                       "h-3 w-3",
                       pattern.trend === 'increasing' && "text-destructive",
                       pattern.trend === 'decreasing' && "text-[hsl(var(--success))]"
-                    )} />
-                    {pattern.trend}
+                    )} strokeWidth={2} />
+                    <span className="capitalize">{pattern.trend}</span>
                   </span>
                 </div>
               </div>
               
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              <ChevronRight className="h-5 w-5 text-muted-foreground/50 transition-transform group-hover:translate-x-1" />
             </div>
           );
         })}
