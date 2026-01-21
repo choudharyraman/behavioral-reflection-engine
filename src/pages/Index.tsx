@@ -58,7 +58,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background mesh-gradient flex flex-col">
       {/* Header - Only show on overview */}
       {activeTab === 'overview' && <MobileHeader userName="Alex" />}
       
@@ -66,23 +66,20 @@ const Index = () => {
       <main className="flex-1 overflow-y-auto">
         {/* Overview Tab */}
         {activeTab === 'overview' && (
-          <div className="space-y-6 pb-24">
+          <div className="space-y-8 pb-28 pt-2">
             <QuickStats />
-            
             <InsightCarousel 
               insights={insights}
               onFeedback={handleInsightFeedback}
             />
-            
             <CategoryGrid data={categoryData} />
-            
             <MobileHeatmap data={heatmapData} />
           </div>
         )}
 
         {/* Patterns Tab */}
         {activeTab === 'patterns' && (
-          <div className="pt-4">
+          <div className="pt-6">
             <MobilePatternList 
               patterns={patterns} 
               onPatternClick={handlePatternClick} 
