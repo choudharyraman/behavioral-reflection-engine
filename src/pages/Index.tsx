@@ -1,15 +1,14 @@
 import { useState, useMemo } from 'react';
-import { Header } from '@/components/dashboard/Header';
-import { TabNav } from '@/components/dashboard/TabNav';
-import { StatsCards } from '@/components/dashboard/StatsCards';
-import { InsightCard } from '@/components/dashboard/InsightCard';
-import { PatternTimeline } from '@/components/dashboard/PatternTimeline';
-import { SpendingHeatmap } from '@/components/dashboard/SpendingHeatmap';
-import { CategoryBreakdownChart } from '@/components/dashboard/CategoryBreakdownChart';
-import { TransactionList } from '@/components/dashboard/TransactionList';
-import { AskAI } from '@/components/dashboard/AskAI';
-import { ScanDocument } from '@/components/dashboard/ScanDocument';
-import { PrivacyBanner } from '@/components/dashboard/PrivacyBanner';
+import { MobileHeader } from '@/components/mobile/MobileHeader';
+import { MobileNavBar } from '@/components/mobile/MobileNavBar';
+import { QuickStats } from '@/components/mobile/QuickStats';
+import { InsightCarousel } from '@/components/mobile/InsightCarousel';
+import { CategoryGrid } from '@/components/mobile/CategoryGrid';
+import { MobilePatternList } from '@/components/mobile/MobilePatternList';
+import { MobileTransactionList } from '@/components/mobile/MobileTransactionList';
+import { MobileAskAI } from '@/components/mobile/MobileAskAI';
+import { MobileScanDocument } from '@/components/mobile/MobileScanDocument';
+import { MobileHeatmap } from '@/components/mobile/MobileHeatmap';
 import {
   generateMockTransactions,
   generateMockPatterns,
@@ -37,18 +36,14 @@ const Index = () => {
     );
     
     if (feedback === 'accurate') {
-      toast.success('Thanks for confirming! This helps improve your insights.');
+      toast.success('Thanks! This helps improve your insights.');
     } else {
-      toast.info('Got it! We\'ll refine this pattern detection.');
+      toast.info('Got it! We\'ll refine this pattern.');
     }
   };
 
-  const handleInsightExpand = (id: string) => {
-    toast.info('Pattern detection methodology explained');
-  };
-
   const handlePatternClick = (pattern: SpendingPattern) => {
-    toast.info(`Viewing details for: ${pattern.title}`);
+    toast.info(`Viewing: ${pattern.title}`);
   };
 
   const handleAddTag = (transactionId: string, tag: ContextTag) => {
@@ -59,67 +54,45 @@ const Index = () => {
           : txn
       )
     );
-    toast.success('Context tag added! This helps personalize future insights.');
+    toast.success('Context added!');
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header - Only show on overview */}
+      {activeTab === 'overview' && <MobileHeader userName="Alex" />}
       
-      <main className="container py-6">
-        <div className="mb-6">
-          <TabNav activeTab={activeTab} onTabChange={setActiveTab} />
-        </div>
-
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto">
         {/* Overview Tab */}
         {activeTab === 'overview' && (
-          <div className="space-y-6">
-            <PrivacyBanner />
-            <StatsCards />
+          <div className="space-y-6 pb-24">
+            <QuickStats />
             
-            <div className="grid gap-6 lg:grid-cols-2">
-              {/* Insights column */}
-              <div className="space-y-4">
-                <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
-                  Latest Insights
-                  <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
-                    {insights.filter(i => !i.dismissed).length} new
-                  </span>
-                </h2>
-                {insights
-                  .filter(insight => !insight.dismissed)
-                  .map(insight => (
-                    <InsightCard
-                      key={insight.id}
-                      insight={insight}
-                      onFeedback={handleInsightFeedback}
-                      onExpand={handleInsightExpand}
-                    />
-                  ))}
-              </div>
-
-              {/* Category breakdown */}
-              <CategoryBreakdownChart data={categoryData} />
-            </div>
-
-            <SpendingHeatmap data={heatmapData} />
+            <InsightCarousel 
+              insights={insights}
+              onFeedback={handleInsightFeedback}
+            />
+            
+            <CategoryGrid data={categoryData} />
+            
+            <MobileHeatmap data={heatmapData} />
           </div>
         )}
 
         {/* Patterns Tab */}
         {activeTab === 'patterns' && (
-          <div className="grid gap-6 lg:grid-cols-2">
-            <PatternTimeline 
+          <div className="pt-4">
+            <MobilePatternList 
               patterns={patterns} 
               onPatternClick={handlePatternClick} 
             />
-            <SpendingHeatmap data={heatmapData} />
           </div>
         )}
 
         {/* Transactions Tab */}
         {activeTab === 'transactions' && (
-          <TransactionList 
+          <MobileTransactionList 
             transactions={transactions} 
             onAddTag={handleAddTag}
           />
@@ -127,18 +100,17 @@ const Index = () => {
 
         {/* Scan Documents Tab */}
         {activeTab === 'scan' && (
-          <div className="mx-auto max-w-4xl">
-            <ScanDocument />
-          </div>
+          <MobileScanDocument />
         )}
 
         {/* Ask AI Tab */}
         {activeTab === 'ask' && (
-          <div className="mx-auto max-w-3xl">
-            <AskAI />
-          </div>
+          <MobileAskAI />
         )}
       </main>
+
+      {/* Bottom Navigation */}
+      <MobileNavBar activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
 };
