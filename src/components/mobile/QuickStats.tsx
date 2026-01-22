@@ -111,8 +111,8 @@ function MiniStat({ icon: Icon, value, label, color }: {
 
 export function QuickStats() {
   return (
-    <div className="px-5">
-      <div className="grid grid-cols-2 gap-4">
+    <div className="px-4 sm:px-5 lg:px-8">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 max-w-2xl mx-auto">
         <QuickStat
           title="Total Spent"
           value="₹38.7K"
@@ -131,7 +131,7 @@ export function QuickStats() {
         />
       </div>
       
-      <div className="mt-4 grid grid-cols-2 gap-4">
+      <div className="mt-3 sm:mt-4 grid grid-cols-2 gap-3 sm:gap-4 max-w-2xl mx-auto">
         <MiniStat
           icon={Target}
           value="4"

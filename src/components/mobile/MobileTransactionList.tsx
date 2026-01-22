@@ -110,35 +110,35 @@ export function MobileTransactionList({ transactions, onAddTag }: MobileTransact
   return (
     <div className="flex flex-col h-full pb-24">
       {/* Search and Filter Header */}
-      <div className="sticky top-0 z-30 glass px-5 py-4 space-y-3">
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
+      <div className="sticky top-0 z-30 glass px-4 sm:px-5 lg:px-8 py-3 sm:py-4 space-y-3">
+        <div className="relative max-w-2xl mx-auto">
+          <Search className="absolute left-3 sm:left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
           <Input
             placeholder="Search transactions..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-11 h-12 rounded-2xl bg-card border-0 shadow-sm text-base"
+            className="pl-9 sm:pl-11 h-10 sm:h-12 rounded-xl sm:rounded-2xl bg-card border-0 shadow-sm text-sm sm:text-base"
           />
           {searchQuery && (
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full"
+              className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 h-7 w-7 sm:h-8 sm:w-8 rounded-full"
               onClick={() => setSearchQuery('')}
             >
-              <X className="h-4 w-4" />
+              <X className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           )}
         </div>
         
         {/* Category Filter Pills */}
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide max-w-2xl mx-auto">
           {categories.map((cat) => (
             <button
               key={cat.value}
               onClick={() => setCategoryFilter(cat.value)}
               className={cn(
-                "shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all duration-300",
+                "shrink-0 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-300 active:scale-95",
                 categoryFilter === cat.value
                   ? "bg-foreground text-background shadow-md"
                   : "bg-card text-muted-foreground hover:bg-muted"
@@ -151,13 +151,14 @@ export function MobileTransactionList({ transactions, onAddTag }: MobileTransact
       </div>
 
       {/* Transaction List */}
-      <div className="flex-1 overflow-y-auto px-5 space-y-5 pt-2">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-5 lg:px-8 space-y-4 sm:space-y-5 pt-2">
+        <div className="max-w-2xl mx-auto space-y-4 sm:space-y-5">
         {Array.from(groupedTransactions.entries()).map(([dateKey, txns]) => (
           <div key={dateKey} className="animate-fade-in">
-            <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
+            <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground mb-2 sm:mb-3 uppercase tracking-wider">
               {dateKey}
             </p>
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {txns.map((txn, idx) => {
                 const Icon = categoryIcons[txn.category];
                 const isTagging = taggingId === txn.id;
@@ -165,7 +166,7 @@ export function MobileTransactionList({ transactions, onAddTag }: MobileTransact
                 return (
                   <div
                     key={txn.id}
-                    className="rounded-3xl bg-card p-4 shadow-sm card-hover"
+                    className="rounded-2xl sm:rounded-3xl bg-card p-3 sm:p-4 shadow-sm card-hover"
                     style={{ animationDelay: `${idx * 30}ms` }}
                   >
                     <div className="flex items-center gap-4">
@@ -259,6 +260,7 @@ export function MobileTransactionList({ transactions, onAddTag }: MobileTransact
             <p className="mt-1 text-sm text-muted-foreground/70">Try adjusting your filters</p>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

@@ -56,15 +56,15 @@ const confidenceBadges = {
 
 export function MobilePatternList({ patterns, onPatternClick }: MobilePatternListProps) {
   return (
-    <div className="space-y-4 px-5 pb-24">
+    <div className="space-y-4 px-4 sm:px-5 lg:px-8 pb-24 max-w-2xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-foreground tracking-tight">Patterns</h2>
-          <p className="text-sm text-muted-foreground">Behaviors we've detected</p>
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground tracking-tight">Patterns</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground">Behaviors we've detected</p>
         </div>
-        <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5">
-          <Sparkles className="h-3.5 w-3.5 text-primary" />
-          <span className="text-xs font-medium text-primary">{patterns.length} found</span>
+        <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 sm:px-3 py-1 sm:py-1.5">
+          <Sparkles className="h-3 sm:h-3.5 w-3 sm:w-3.5 text-primary" />
+          <span className="text-[10px] sm:text-xs font-medium text-primary">{patterns.length} found</span>
         </div>
       </div>
       
@@ -79,48 +79,49 @@ export function MobilePatternList({ patterns, onPatternClick }: MobilePatternLis
             <div
               key={pattern.id}
               onClick={() => onPatternClick(pattern)}
-              className="group flex items-center gap-4 rounded-3xl bg-card p-4 shadow-sm transition-all duration-300 card-hover animate-fade-in"
+              className="group flex items-center gap-3 sm:gap-4 rounded-2xl sm:rounded-3xl bg-card p-3 sm:p-4 shadow-sm transition-all duration-300 card-hover animate-fade-in cursor-pointer active:scale-[0.98]"
               style={{ animationDelay: `${idx * 50}ms` }}
             >
               <div className={cn(
-                "flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br shadow-sm",
+                "flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-br shadow-sm",
                 categoryGradients[pattern.category]
               )}>
-                <Icon className="h-6 w-6 text-primary-foreground" strokeWidth={1.5} />
+                <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" strokeWidth={1.5} />
               </div>
               
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-foreground truncate tracking-tight">{pattern.title}</h3>
+                  <h3 className="font-semibold text-sm sm:text-base text-foreground truncate tracking-tight">{pattern.title}</h3>
                   <span className={cn(
-                    "shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium",
+                    "shrink-0 rounded-full border px-1.5 sm:px-2 py-0.5 text-[8px] sm:text-[10px] font-medium",
                     badge.className
                   )}>
                     {badge.label}
                   </span>
                 </div>
-                <p className="mt-0.5 text-sm text-muted-foreground line-clamp-1">
+                <p className="mt-0.5 text-xs sm:text-sm text-muted-foreground line-clamp-1">
                   {pattern.description}
                 </p>
                 
                 {/* Stats row */}
-                <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
+                <div className="mt-2 flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground">
                   <span className="font-semibold text-foreground">₹{pattern.averageAmount}</span>
                   <span className="text-border">•</span>
-                  <span>{pattern.timeRange}</span>
+                  <span className="hidden sm:inline">{pattern.timeRange}</span>
+                  <span className="sm:hidden">{pattern.timeRange.split(' ')[0]}</span>
                   <span className="text-border">•</span>
                   <span className="flex items-center gap-1">
                     <TrendIcon className={cn(
-                      "h-3 w-3",
+                      "h-2.5 w-2.5 sm:h-3 sm:w-3",
                       pattern.trend === 'increasing' && "text-destructive",
                       pattern.trend === 'decreasing' && "text-[hsl(var(--success))]"
                     )} strokeWidth={2} />
-                    <span className="capitalize">{pattern.trend}</span>
+                    <span className="capitalize hidden sm:inline">{pattern.trend}</span>
                   </span>
                 </div>
               </div>
               
-              <ChevronRight className="h-5 w-5 text-muted-foreground/50 transition-transform group-hover:translate-x-1" />
+              <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground/50 transition-transform group-hover:translate-x-1" />
             </div>
           );
         })}
