@@ -39,21 +39,21 @@ export function MobileHeatmap({ data }: MobileHeatmapProps) {
   };
 
   return (
-    <div className="px-5 animate-fade-in">
-      <div className="rounded-3xl bg-card p-5 shadow-sm">
-        <div className="flex items-center justify-between mb-5">
+    <div className="px-4 sm:px-5 lg:px-8 animate-fade-in max-w-2xl mx-auto">
+      <div className="rounded-2xl sm:rounded-3xl bg-card p-4 sm:p-5 shadow-sm">
+        <div className="flex items-center justify-between mb-4 sm:mb-5">
           <div>
-            <h3 className="font-semibold text-foreground tracking-tight">Spending Heatmap</h3>
-            <p className="text-sm text-muted-foreground">When you spend the most</p>
+            <h3 className="text-base sm:text-lg font-semibold text-foreground tracking-tight">Spending Heatmap</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground">When you spend the most</p>
           </div>
         </div>
         
         {/* Hour labels */}
-        <div className="flex mb-3">
-          <div className="w-10 shrink-0" />
+        <div className="flex mb-2 sm:mb-3">
+          <div className="w-8 sm:w-10 shrink-0" />
           <div className="flex flex-1 justify-between">
             {hourBlocks.map(block => (
-              <span key={block.label} className="text-[10px] font-medium text-muted-foreground w-10 text-center">
+              <span key={block.label} className="text-[8px] sm:text-[10px] font-medium text-muted-foreground w-8 sm:w-10 text-center">
                 {block.label}
               </span>
             ))}
@@ -61,20 +61,20 @@ export function MobileHeatmap({ data }: MobileHeatmapProps) {
         </div>
         
         {/* Grid */}
-        <div className="space-y-2">
+        <div className="space-y-1.5 sm:space-y-2">
           {dayKeys.map((day, dayIndex) => (
-            <div key={day} className="flex items-center gap-3">
-              <span className="w-8 text-[11px] font-medium text-muted-foreground">
+            <div key={day} className="flex items-center gap-2 sm:gap-3">
+              <span className="w-6 sm:w-8 text-[9px] sm:text-[11px] font-medium text-muted-foreground">
                 {days[dayIndex]}
               </span>
-              <div className="flex flex-1 gap-1.5">
+              <div className="flex flex-1 gap-1 sm:gap-1.5">
                 {hourBlocks.map((block) => {
                   const value = getBlockValue(day, block.hours);
                   return (
                     <div
                       key={`${day}-${block.label}`}
                       className={cn(
-                        "h-8 flex-1 rounded-lg transition-all duration-300 hover:scale-105",
+                        "h-6 sm:h-8 flex-1 rounded-md sm:rounded-lg transition-all duration-300 hover:scale-105 cursor-pointer",
                         getIntensityClass(value)
                       )}
                       style={{ animationDelay: `${dayIndex * 50}ms` }}
@@ -87,14 +87,14 @@ export function MobileHeatmap({ data }: MobileHeatmapProps) {
         </div>
         
         {/* Legend */}
-        <div className="mt-5 flex items-center justify-center gap-3">
-          <span className="text-[10px] font-medium text-muted-foreground">Less</span>
-          <div className="flex gap-1">
+        <div className="mt-4 sm:mt-5 flex items-center justify-center gap-2 sm:gap-3">
+          <span className="text-[8px] sm:text-[10px] font-medium text-muted-foreground">Less</span>
+          <div className="flex gap-0.5 sm:gap-1">
             {['bg-muted/20', 'bg-primary/15', 'bg-primary/30', 'bg-primary/50', 'bg-primary/70', 'bg-primary'].map((cls, i) => (
-              <div key={i} className={cn("h-4 w-4 rounded-md transition-transform hover:scale-110", cls)} />
+              <div key={i} className={cn("h-3 w-3 sm:h-4 sm:w-4 rounded sm:rounded-md transition-transform hover:scale-110", cls)} />
             ))}
           </div>
-          <span className="text-[10px] font-medium text-muted-foreground">More</span>
+          <span className="text-[8px] sm:text-[10px] font-medium text-muted-foreground">More</span>
         </div>
       </div>
     </div>

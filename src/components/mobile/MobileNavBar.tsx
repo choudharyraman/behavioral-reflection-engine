@@ -4,7 +4,7 @@ import {
   TrendingUp, 
   History, 
   Scan, 
-  MessageCircle 
+  Sparkles 
 } from 'lucide-react';
 
 interface MobileNavBarProps {
@@ -12,49 +12,50 @@ interface MobileNavBarProps {
   onTabChange: (tab: string) => void;
 }
 
+// Reordered: Ask AI is now center (index 2)
 const navItems = [
   { id: 'overview', label: 'Home', icon: LayoutGrid },
   { id: 'patterns', label: 'Patterns', icon: TrendingUp },
-  { id: 'scan', label: 'Scan', icon: Scan },
+  { id: 'ask', label: 'Ask AI', icon: Sparkles, isCenter: true },
   { id: 'transactions', label: 'History', icon: History },
-  { id: 'ask', label: 'Ask AI', icon: MessageCircle },
+  { id: 'scan', label: 'Scan', icon: Scan },
 ];
 
 export function MobileNavBar({ activeTab, onTabChange }: MobileNavBarProps) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 glass safe-area-inset-bottom">
-      <div className="flex items-center justify-around px-4 py-2">
+      <div className="flex items-center justify-around px-2 sm:px-4 py-2 max-w-lg mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
-          const isScan = item.id === 'scan';
+          const isCenter = item.isCenter;
           
           return (
             <button
               key={item.id}
               onClick={() => onTabChange(item.id)}
               className={cn(
-                "relative flex flex-col items-center justify-center gap-1 rounded-2xl px-4 py-2 transition-all duration-300",
-                isScan && "-mt-5"
+                "relative flex flex-col items-center justify-center gap-1 rounded-2xl px-2 sm:px-4 py-2 transition-all duration-300",
+                isCenter && "-mt-5"
               )}
             >
-              {isScan ? (
+              {isCenter ? (
                 <div className={cn(
-                  "flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300",
+                  "flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl transition-all duration-300",
                   isActive 
                     ? "bg-gradient-to-br from-primary to-[hsl(260_80%_60%)] shadow-lg scale-105 pulse-glow" 
                     : "bg-gradient-to-br from-primary/90 to-[hsl(260_80%_60%)]/90 shadow-md"
                 )}>
-                  <Icon className="h-6 w-6 text-primary-foreground" strokeWidth={1.5} />
+                  <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" strokeWidth={1.5} />
                 </div>
               ) : (
                 <div className={cn(
-                  "flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300",
+                  "flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl transition-all duration-300",
                   isActive && "bg-primary/10"
                 )}>
                   <Icon 
                     className={cn(
-                      "h-5 w-5 transition-all duration-300",
+                      "h-4 w-4 sm:h-5 sm:w-5 transition-all duration-300",
                       isActive ? "text-primary scale-110" : "text-muted-foreground"
                     )} 
                     strokeWidth={isActive ? 2 : 1.5}
@@ -62,15 +63,15 @@ export function MobileNavBar({ activeTab, onTabChange }: MobileNavBarProps) {
                 </div>
               )}
               <span className={cn(
-                "text-[11px] font-medium tracking-wide transition-all duration-300",
+                "text-[10px] sm:text-[11px] font-medium tracking-wide transition-all duration-300",
                 isActive ? "text-primary" : "text-muted-foreground",
-                isScan && "mt-0.5"
+                isCenter && "mt-0.5"
               )}>
                 {item.label}
               </span>
               
               {/* Active indicator dot */}
-              {isActive && !isScan && (
+              {isActive && !isCenter && (
                 <div className="absolute -bottom-0.5 h-1 w-1 rounded-full bg-primary" />
               )}
             </button>

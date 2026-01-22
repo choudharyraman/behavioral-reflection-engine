@@ -50,20 +50,20 @@ export function InsightCarousel({ insights, onFeedback }: InsightCarouselProps) 
 
   return (
     <div className="space-y-4 animate-fade-in">
-      <div className="flex items-center justify-between px-5">
+      <div className="flex items-center justify-between px-4 sm:px-5 lg:px-8">
         <div>
-          <h2 className="text-xl font-semibold text-foreground tracking-tight">Your Insights</h2>
-          <p className="text-sm text-muted-foreground">Patterns we noticed</p>
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground tracking-tight">Your Insights</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground">Patterns we noticed</p>
         </div>
-        <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5">
-          <Sparkles className="h-3.5 w-3.5 text-primary" />
-          <span className="text-xs font-medium text-primary">{visibleInsights.length} new</span>
+        <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 sm:px-3 py-1 sm:py-1.5">
+          <Sparkles className="h-3 sm:h-3.5 w-3 sm:w-3.5 text-primary" />
+          <span className="text-[10px] sm:text-xs font-medium text-primary">{visibleInsights.length} new</span>
         </div>
       </div>
       
       <div 
         ref={scrollRef}
-        className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 scrollbar-hide"
+        className="flex snap-x snap-mandatory gap-3 sm:gap-4 overflow-x-auto px-4 sm:px-5 lg:px-8 pb-2 scrollbar-hide"
         onScroll={handleScroll}
       >
         {visibleInsights.map((insight, idx) => {

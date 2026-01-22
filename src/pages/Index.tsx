@@ -66,7 +66,7 @@ const Index = () => {
       <main className="flex-1 overflow-y-auto">
         {/* Overview Tab */}
         {activeTab === 'overview' && (
-          <div className="space-y-8 pb-28 pt-2">
+          <div className="space-y-6 sm:space-y-8 pb-24 sm:pb-28 pt-2">
             <QuickStats />
             <InsightCarousel 
               insights={insights}
@@ -79,7 +79,7 @@ const Index = () => {
 
         {/* Patterns Tab */}
         {activeTab === 'patterns' && (
-          <div className="pt-6">
+          <div className="pt-4 sm:pt-6">
             <MobilePatternList 
               patterns={patterns} 
               onPatternClick={handlePatternClick} 
