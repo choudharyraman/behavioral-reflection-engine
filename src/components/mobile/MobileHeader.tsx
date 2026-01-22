@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Bell, Settings, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Bell, Moon, Sun, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -34,6 +34,19 @@ export function MobileHeader({ userName = 'User' }: MobileHeaderProps) {
   const greeting = getGreeting();
   const [notifications, setNotifications] = useState(mockNotifications);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+  
+  useEffect(() => {
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    setIsDark(isDarkMode);
+  }, []);
+  
+  const toggleDarkMode = () => {
+    const newMode = !isDark;
+    setIsDark(newMode);
+    document.documentElement.classList.toggle('dark', newMode);
+    localStorage.setItem('theme', newMode ? 'dark' : 'light');
+  };
   
   const unreadCount = notifications.filter(n => !n.read).length;
   
@@ -61,19 +74,35 @@ export function MobileHeader({ userName = 'User' }: MobileHeaderProps) {
           </div>
         </div>
 
-        <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
-          <SheetTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="relative h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-card shadow-sm hover:shadow-md transition-shadow"
-            >
-              <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-foreground" strokeWidth={1.5} />
-              {unreadCount > 0 && (
-                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary ring-2 ring-background animate-pulse" />
-              )}
-            </Button>
-          </SheetTrigger>
+        <div className="flex items-center gap-2">
+          {/* Dark Mode Toggle */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={toggleDarkMode}
+            className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-card shadow-sm hover:shadow-md transition-all active:scale-95"
+          >
+            {isDark ? (
+              <Sun className="h-4 w-4 sm:h-5 sm:w-5 text-foreground" strokeWidth={1.5} />
+            ) : (
+              <Moon className="h-4 w-4 sm:h-5 sm:w-5 text-foreground" strokeWidth={1.5} />
+            )}
+          </Button>
+
+          {/* Notifications */}
+          <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
+            <SheetTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-card shadow-sm hover:shadow-md transition-shadow"
+              >
+                <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-foreground" strokeWidth={1.5} />
+                {unreadCount > 0 && (
+                  <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary ring-2 ring-background animate-pulse" />
+                )}
+              </Button>
+            </SheetTrigger>
           <SheetContent side="right" className="w-full sm:max-w-md">
             <SheetHeader>
               <SheetTitle>Notifications</SheetTitle>
@@ -113,7 +142,8 @@ export function MobileHeader({ userName = 'User' }: MobileHeaderProps) {
               )}
             </div>
           </SheetContent>
-        </Sheet>
+          </Sheet>
+        </div>
       </div>
     </header>
   );
