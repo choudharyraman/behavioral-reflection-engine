@@ -1,1 +1,16 @@
 project_id = "bfwmplgbwfyklvgvbpzk"
+
+[functions.analyze-statement]
+verify_jwt = false
+
+[functions.detect-patterns]
+verify_jwt = false
+
+[functions.generate-stories]
+verify_jwt = false
+
+[functions.deviation-engine]
+verify_jwt = false
+
+[functions.chat-ai]
+verify_jwt = false
