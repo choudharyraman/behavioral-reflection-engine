@@ -1,14 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Sparkles, Loader2, Mic } from 'lucide-react';
+import { Send, Sparkles, Loader2, Mic, RefreshCw, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  error?: boolean;
 }
 
 const suggestedQuestions = [
@@ -16,6 +19,8 @@ const suggestedQuestions = [
   "What are my biggest habits?",
   "When do I impulse buy?",
   "How has my spending changed?",
+  "What triggers my late-night orders?",
+  "Which days do I spend the most?",
 ];
 
 export function MobileAskAI() {
@@ -32,7 +37,7 @@ export function MobileAskAI() {
 
   const handleSend = async (question?: string) => {
     const messageText = question || input.trim();
-    if (!messageText) return;
+    if (!messageText || isLoading) return;
 
     const userMessage: Message = {
       id: `msg-${Date.now()}`,
@@ -45,30 +50,62 @@ export function MobileAskAI() {
     setInput('');
     setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const responses: Record<string, string> = {
-        "Why did I overspend last week?": 
-          "Last week, you made 8 food delivery orders—6 between 9-11 PM. This is higher than usual. It coincided with the week before salary date. Would you like to add context tags?",
-        "What are my biggest habits?": 
-          "Your top patterns:\n\n1. **Late-night delivery** (₹4,560/month)\n2. **Weekend shopping** (₹3,200/month)\n3. **Morning coffee** (₹720/month)",
-        "When do I impulse buy?": 
-          "Impulse buying happens:\n\n• Late evenings (9-11 PM)\n• First week after salary\n• Weekends\n\nTypically under ₹500.",
-        "How has my spending changed?": 
-          "This month:\n\n📈 Entertainment +23%\n📈 Food delivery +15%\n📉 Shopping -12%\n📉 Transport -5%",
-      };
+    try {
+      // Build conversation history for context
+      const conversationHistory = messages.map(m => ({
+        role: m.role,
+        content: m.content
+      }));
+
+      const { data, error } = await supabase.functions.invoke('chat-ai', {
+        body: { 
+          message: messageText,
+          conversationHistory 
+        }
+      });
+
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
 
       const aiMessage: Message = {
         id: `msg-${Date.now()}`,
         role: 'assistant',
-        content: responses[messageText] || 
-          "I can help you understand your spending patterns. What would you like to know?",
+        content: data.response || "I couldn't generate a response. Please try again.",
         timestamp: new Date(),
       };
 
       setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Chat error:', error);
+      
+      // Add error message
+      const errorMessage: Message = {
+        id: `msg-${Date.now()}`,
+        role: 'assistant',
+        content: "Sorry, I couldn't process your request. Please try again.",
+        timestamp: new Date(),
+        error: true,
+      };
+      setMessages(prev => [...prev, errorMessage]);
+      toast.error('Failed to get AI response');
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
+  };
+
+  const handleClearChat = () => {
+    setMessages([]);
+    toast.success('Chat cleared');
+  };
+
+  const handleRetry = (messageIndex: number) => {
+    // Find the user message before the error
+    const userMessage = messages[messageIndex - 1];
+    if (userMessage?.role === 'user') {
+      // Remove error message and retry
+      setMessages(prev => prev.slice(0, messageIndex));
+      handleSend(userMessage.content);
+    }
   };
 
   return (
@@ -92,19 +129,19 @@ export function MobileAskAI() {
               Ask me anything
             </h2>
             <p className="mt-2 text-sm sm:text-base text-muted-foreground max-w-xs leading-relaxed">
-              I can help you understand patterns, find insights, and reflect on your spending.
+              I can help you understand patterns, find insights, and reflect on your spending behavior.
             </p>
             
             <div className="mt-8 sm:mt-10 w-full max-w-sm space-y-3">
               <p className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Try asking
               </p>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-wrap gap-2 justify-center">
                 {suggestedQuestions.map((question, idx) => (
                   <Button
                     key={question}
                     variant="outline"
-                    className="h-auto py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm text-left justify-start border-border/50 hover:bg-primary/5 hover:border-primary/30 hover:text-primary transition-all animate-fade-in active:scale-[0.98]"
+                    className="h-auto py-2 px-3 rounded-full text-xs border-border/50 hover:bg-primary/5 hover:border-primary/30 hover:text-primary transition-all animate-fade-in active:scale-[0.98]"
                     style={{ animationDelay: `${idx * 100}ms` }}
                     onClick={() => handleSend(question)}
                   >
@@ -115,27 +152,61 @@ export function MobileAskAI() {
             </div>
           </div>
         ) : (
-          messages.map((message, idx) => (
-            <div
-              key={message.id}
-              className={cn(
-                "flex animate-fade-in",
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              )}
-              style={{ animationDelay: `${idx * 50}ms` }}
-            >
-              <div
-                className={cn(
-                  "max-w-[90%] sm:max-w-[85%] rounded-2xl sm:rounded-3xl px-4 sm:px-5 py-3 sm:py-3.5",
-                  message.role === 'user'
-                    ? 'bg-foreground text-background rounded-br-lg'
-                    : 'bg-card text-foreground rounded-bl-lg shadow-sm'
-                )}
+          <>
+            {/* Clear chat button */}
+            <div className="flex justify-center mb-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClearChat}
+                className="text-xs text-muted-foreground hover:text-foreground"
               >
-                <p className="whitespace-pre-wrap text-sm sm:text-[15px] leading-relaxed">{message.content}</p>
-              </div>
+                <RefreshCw className="mr-1.5 h-3 w-3" />
+                Clear chat
+              </Button>
             </div>
-          ))
+            
+            {messages.map((message, idx) => (
+              <div
+                key={message.id}
+                className={cn(
+                  "flex animate-fade-in",
+                  message.role === 'user' ? 'justify-end' : 'justify-start'
+                )}
+                style={{ animationDelay: `${idx * 50}ms` }}
+              >
+                <div
+                  className={cn(
+                    "max-w-[90%] sm:max-w-[85%] rounded-2xl sm:rounded-3xl px-4 sm:px-5 py-3 sm:py-3.5",
+                    message.role === 'user'
+                      ? 'bg-foreground text-background rounded-br-lg'
+                      : message.error 
+                        ? 'bg-destructive/10 text-destructive rounded-bl-lg'
+                        : 'bg-card text-foreground rounded-bl-lg shadow-sm'
+                  )}
+                >
+                  {message.error && (
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertCircle className="h-4 w-4" />
+                      <span className="text-xs font-medium">Error</span>
+                    </div>
+                  )}
+                  <p className="whitespace-pre-wrap text-sm sm:text-[15px] leading-relaxed">{message.content}</p>
+                  {message.error && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRetry(idx)}
+                      className="mt-2 text-xs"
+                    >
+                      <RefreshCw className="mr-1.5 h-3 w-3" />
+                      Retry
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </>
         )}
 
         {isLoading && (
@@ -146,7 +217,7 @@ export function MobileAskAI() {
                 <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }} />
                 <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
-              <span className="text-xs sm:text-sm text-muted-foreground">Thinking...</span>
+              <span className="text-xs sm:text-sm text-muted-foreground">Analyzing your patterns...</span>
             </div>
           </div>
         )}
@@ -162,11 +233,12 @@ export function MobileAskAI() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
                   handleSend();
                 }
               }}
+              disabled={isLoading}
               className="h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-card border-0 pr-10 sm:pr-12 text-sm sm:text-base shadow-sm"
             />
             <Button
@@ -183,7 +255,11 @@ export function MobileAskAI() {
             size="icon"
             className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl sm:rounded-2xl bg-foreground hover:bg-foreground/90 shadow-md shrink-0 active:scale-95 transition-transform"
           >
-            <Send className="h-4 w-4 sm:h-5 sm:w-5" />
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4 sm:h-5 sm:w-5" />
+            )}
           </Button>
         </div>
       </div>
