@@ -156,7 +156,16 @@ const Index = () => {
           </div>
         )}
         {activeTab === 'patterns' && <MobilePatternList patterns={patterns} onPatternClick={handlePatternClick} />}
-        {activeTab === 'transactions' && <MobileTransactionList transactions={transactions} onAddTag={handleAddTag} />}
+        {activeTab === 'transactions' && (
+          <MobileTransactionList 
+            transactions={transactions} 
+            onAddTag={handleAddTag} 
+            onEmotionTag={(txn) => {
+              setTaggingTransaction(txn);
+              setShowEmotionTagger(true);
+            }}
+          />
+        )}
         {activeTab === 'scan' && <MobileScanDocument />}
         {activeTab === 'ask' && <MobileAskAI />}
         {activeTab === 'seasons' && <SpendingSeasons seasons={seasons} />}
