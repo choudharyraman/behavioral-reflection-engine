@@ -16,6 +16,8 @@ import { WeeklyCheckin, WeeklyCheckinData } from '@/components/mobile/WeeklyChec
 import { MoneyJournal, JournalEntry } from '@/components/mobile/MoneyJournal';
 import { NotificationSettings, NotificationPreferences } from '@/components/mobile/NotificationSettings';
 import { SoftNudge, DeviationEvent } from '@/components/mobile/SoftNudge';
+import { ImpulseBuysScreen } from '@/components/mobile/ImpulseBuysScreen';
+import { InsightsScreen } from '@/components/mobile/InsightsScreen';
 import {
   generateMockTransactions,
   generateMockPatterns,
@@ -96,6 +98,16 @@ const Index = () => {
   const categoryData = useMemo(() => generateCategoryBreakdown(), []);
   const seasons = useMemo(() => generateMockSeasons(), []);
 
+  // Calculate stats for QuickStats
+  const totalSpent = useMemo(() => 
+    transactions.reduce((sum, t) => sum + t.amount, 0), [transactions]);
+  
+  const impulseCount = useMemo(() => 
+    transactions.filter(t => !t.isRecurring && t.amount < 1000 && 
+      (t.timeOfDay === 'late_night' || t.timeOfDay === 'evening' || 
+       t.dayOfWeek === 'saturday' || t.dayOfWeek === 'sunday')).length, 
+    [transactions]);
+
   const handleInsightFeedback = (id: string, feedback: 'accurate' | 'not_quite') => {
     setInsights(prev => prev.map(insight => insight.id === id ? { ...insight, userFeedback: feedback } : insight));
     toast.success(feedback === 'accurate' ? 'Thanks! This helps improve your insights.' : "Got it! We'll refine this pattern.");
@@ -138,6 +150,10 @@ const Index = () => {
     setWeeklyCheckin(null);
   };
 
+  const handleNavigate = (tab: string) => {
+    setActiveTab(tab);
+  };
+
   return (
     <div className="min-h-screen bg-background mesh-gradient flex flex-col">
       {activeTab === 'overview' && <MobileHeader userName="Alex" onNotificationSettingsClick={() => setShowNotificationSettings(true)} />}
@@ -145,7 +161,13 @@ const Index = () => {
       <main className="flex-1 overflow-y-auto">
         {activeTab === 'overview' && (
           <div className="space-y-6 sm:space-y-8 pb-24 sm:pb-28 pt-2">
-            <QuickStats />
+            <QuickStats 
+              onNavigate={handleNavigate}
+              totalSpent={totalSpent}
+              impulseCount={impulseCount}
+              patternCount={patterns.length}
+              insightCount={insights.filter(i => !i.userFeedback).length}
+            />
             {stories.filter(s => !s.dismissed).length > 0 && (
               <div className="px-4"><MomentStories stories={stories} onFeedback={handleStoryFeedback} onDismiss={handleStoryDismiss} /></div>
             )}
@@ -171,6 +193,10 @@ const Index = () => {
         {activeTab === 'seasons' && <SpendingSeasons seasons={seasons} />}
         {activeTab === 'checkin' && <WeeklyCheckin checkin={weeklyCheckin} onRespond={handleCheckinRespond} onDismiss={() => setWeeklyCheckin(null)} />}
         {activeTab === 'journal' && <MoneyJournal entries={journalEntries} patterns={patterns} onAddEntry={handleJournalEntry} onDeleteEntry={(id) => setJournalEntries(prev => prev.filter(e => e.id !== id))} />}
+        
+        {/* New screens */}
+        {activeTab === 'impulse' && <ImpulseBuysScreen transactions={transactions} onBack={() => setActiveTab('overview')} />}
+        {activeTab === 'insights' && <InsightsScreen insights={insights} onBack={() => setActiveTab('overview')} onFeedback={handleInsightFeedback} />}
       </main>
 
       <MobileNavBar activeTab={activeTab} onTabChange={setActiveTab} />

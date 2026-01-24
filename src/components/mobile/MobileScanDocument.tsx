@@ -18,12 +18,19 @@ import {
   X,
   Camera,
   FolderOpen,
-  ArrowRight
+  ArrowRight,
+  History,
+  Trash2,
+  Eye
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { format } from 'date-fns';
 
 interface AnalysisResult {
+  id: string;
+  fileName: string;
+  analyzedAt: Date;
   summary: {
     totalTransactions: number;
     totalSpent: number;
@@ -81,10 +88,13 @@ const confidenceStyles = {
   weak: 'bg-muted text-muted-foreground border-border',
 };
 
+type ViewMode = 'upload' | 'analyzing' | 'results' | 'history';
+
 export function MobileScanDocument() {
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('upload');
   const [analysisProgress, setAnalysisProgress] = useState(0);
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [currentResult, setCurrentResult] = useState<AnalysisResult | null>(null);
+  const [analysisHistory, setAnalysisHistory] = useState<AnalysisResult[]>([]);
   const [fileName, setFileName] = useState<string>('');
 
   const readFileAsText = (file: File): Promise<string> => {
@@ -96,8 +106,8 @@ export function MobileScanDocument() {
     });
   };
 
-  const analyzeDocument = async (text: string) => {
-    setIsAnalyzing(true);
+  const analyzeDocument = async (text: string, name: string) => {
+    setViewMode('analyzing');
     setAnalysisProgress(0);
 
     const progressInterval = setInterval(() => {
@@ -115,13 +125,21 @@ export function MobileScanDocument() {
       if (error) throw error;
       if (data.error) throw new Error(data.error);
 
-      setAnalysisResult(data);
+      const result: AnalysisResult = {
+        id: `analysis-${Date.now()}`,
+        fileName: name,
+        analyzedAt: new Date(),
+        ...data
+      };
+
+      setCurrentResult(result);
+      setAnalysisHistory(prev => [result, ...prev].slice(0, 10)); // Keep last 10
+      setViewMode('results');
       toast.success('Analysis complete!');
     } catch (error) {
       console.error('Analysis error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to analyze document');
-    } finally {
-      setIsAnalyzing(false);
+      setViewMode('upload');
     }
   };
 
@@ -145,17 +163,16 @@ export function MobileScanDocument() {
     }
 
     setFileName(file.name);
-    setAnalysisResult(null);
 
     try {
       if (file.type === 'text/plain' || file.type === 'text/csv' || 
           file.name.endsWith('.txt') || file.name.endsWith('.csv')) {
         const text = await readFileAsText(file);
-        await analyzeDocument(text);
+        await analyzeDocument(text, file.name);
       } else if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
         toast.info('Reading PDF content...');
         const text = await readFileAsText(file);
-        await analyzeDocument(text.length > 100 ? text : `PDF Document: ${file.name}`);
+        await analyzeDocument(text.length > 100 ? text : `PDF Document: ${file.name}`, file.name);
       }
     } catch (error) {
       console.error('File processing error:', error);
@@ -168,10 +185,14 @@ export function MobileScanDocument() {
     if (file) handleFile(file);
   };
 
-  const resetAnalysis = () => {
-    setAnalysisResult(null);
-    setFileName('');
-    setAnalysisProgress(0);
+  const viewHistoryItem = (result: AnalysisResult) => {
+    setCurrentResult(result);
+    setViewMode('results');
+  };
+
+  const deleteHistoryItem = (id: string) => {
+    setAnalysisHistory(prev => prev.filter(r => r.id !== id));
+    toast.success('Removed from history');
   };
 
   const formatCurrency = (amount: number) => {
@@ -185,8 +206,9 @@ export function MobileScanDocument() {
   return (
     <div className="flex flex-col min-h-full pb-24 px-4 sm:px-5 lg:px-8">
       <div className="max-w-2xl mx-auto w-full">
+        
       {/* Upload Section */}
-      {!analysisResult && !isAnalyzing && (
+      {viewMode === 'upload' && (
         <div className="flex flex-col items-center justify-center flex-1 py-10 sm:py-12 animate-fade-in">
           <div className="relative">
             <div className="flex h-24 w-24 sm:h-28 sm:w-28 items-center justify-center rounded-[1.75rem] sm:rounded-[2rem] bg-gradient-to-br from-primary/20 to-primary/10 mb-6 sm:mb-8">
@@ -240,19 +262,84 @@ export function MobileScanDocument() {
               </div>
             </label>
           </div>
+
+          {/* History button */}
+          {analysisHistory.length > 0 && (
+            <Button
+              variant="outline"
+              className="mt-6 rounded-xl"
+              onClick={() => setViewMode('history')}
+            >
+              <History className="mr-2 h-4 w-4" />
+              View History ({analysisHistory.length})
+            </Button>
+          )}
           
           <div className="mt-8 sm:mt-10 flex items-start gap-3 rounded-2xl sm:rounded-3xl bg-primary/5 p-4 sm:p-5 max-w-sm">
             <Shield className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 text-primary mt-0.5" strokeWidth={1.5} />
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
               <span className="font-semibold text-foreground">Privacy First</span><br />
-              Your document is analyzed securely and never stored.
+              Your document is analyzed securely and never stored on our servers.
             </p>
           </div>
         </div>
       )}
 
+      {/* History View */}
+      {viewMode === 'history' && (
+        <div className="py-6 animate-fade-in">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-lg font-semibold text-foreground tracking-tight">Analysis History</h2>
+              <p className="text-sm text-muted-foreground">{analysisHistory.length} previous scans</p>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => setViewMode('upload')} className="rounded-xl">
+              <X className="mr-1 h-4 w-4" /> Close
+            </Button>
+          </div>
+
+          <div className="space-y-3">
+            {analysisHistory.map((result, idx) => (
+              <div
+                key={result.id}
+                className="flex items-center gap-3 rounded-2xl bg-card p-4 shadow-sm animate-fade-in"
+                style={{ animationDelay: `${idx * 50}ms` }}
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                  <FileText className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{result.fileName}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {format(result.analyzedAt, 'MMM d, yyyy h:mm a')} • {formatCurrency(result.summary.totalSpent)}
+                  </p>
+                </div>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => viewHistoryItem(result)}
+                    className="h-8 w-8 rounded-lg"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => deleteHistoryItem(result.id)}
+                    className="h-8 w-8 rounded-lg text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Analyzing State */}
-      {isAnalyzing && (
+      {viewMode === 'analyzing' && (
         <div className="flex flex-col items-center justify-center flex-1 py-10 sm:py-12 animate-fade-in">
           <div className="relative">
             <div className="flex h-24 w-24 sm:h-28 sm:w-28 items-center justify-center rounded-[1.75rem] sm:rounded-[2rem] bg-gradient-to-br from-primary/20 to-primary/10">
@@ -267,14 +354,17 @@ export function MobileScanDocument() {
           <div className="mt-6 sm:mt-8 w-full max-w-xs">
             <Progress value={analysisProgress} className="h-1.5 sm:h-2" />
             <p className="mt-2 sm:mt-3 text-xs sm:text-sm text-center text-muted-foreground">
-              {analysisProgress}% complete
+              {analysisProgress < 30 && "Reading document..."}
+              {analysisProgress >= 30 && analysisProgress < 60 && "Extracting transactions..."}
+              {analysisProgress >= 60 && analysisProgress < 90 && "Detecting patterns..."}
+              {analysisProgress >= 90 && "Generating insights..."}
             </p>
           </div>
         </div>
       )}
 
       {/* Results Section */}
-      {analysisResult && (
+      {viewMode === 'results' && currentResult && (
         <div className="space-y-4 sm:space-y-5 py-5 sm:py-6 animate-fade-in">
           {/* Success Header */}
           <div className="flex items-center justify-between">
@@ -284,13 +374,13 @@ export function MobileScanDocument() {
               </div>
               <div>
                 <h2 className="text-base sm:text-lg font-semibold text-foreground tracking-tight">Analysis Complete</h2>
-                <p className="text-xs sm:text-sm text-muted-foreground truncate max-w-[140px] sm:max-w-[160px]">{fileName}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate max-w-[140px] sm:max-w-[160px]">{currentResult.fileName}</p>
               </div>
             </div>
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={resetAnalysis} 
+              onClick={() => setViewMode('upload')} 
               className="rounded-xl sm:rounded-2xl border-border/50 h-9 sm:h-10 text-xs sm:text-sm active:scale-95 transition-transform"
             >
               <X className="mr-1 sm:mr-1.5 h-3 w-3 sm:h-4 sm:w-4" strokeWidth={1.5} />
@@ -303,19 +393,19 @@ export function MobileScanDocument() {
             <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-br from-primary via-primary to-[hsl(260_80%_60%)] p-4 sm:p-5 shadow-lg">
               <p className="text-xs sm:text-sm text-primary-foreground/80">Total Spent</p>
               <p className="text-2xl sm:text-3xl font-bold text-primary-foreground tracking-tight mt-1">
-                {formatCurrency(analysisResult.summary.totalSpent)}
+                {formatCurrency(currentResult.summary.totalSpent)}
               </p>
             </div>
             <div className="rounded-2xl sm:rounded-3xl bg-card p-4 sm:p-5 shadow-sm">
               <p className="text-xs sm:text-sm text-muted-foreground">Transactions</p>
               <p className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight mt-1">
-                {analysisResult.summary.totalTransactions}
+                {currentResult.summary.totalTransactions}
               </p>
             </div>
           </div>
 
           {/* Top Categories */}
-          {analysisResult.summary.topCategories.length > 0 && (
+          {currentResult.summary.topCategories.length > 0 && (
             <div className="rounded-2xl sm:rounded-3xl bg-card p-4 sm:p-5 shadow-sm">
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <h3 className="text-sm sm:text-base font-semibold text-foreground tracking-tight">Top Categories</h3>
@@ -325,7 +415,7 @@ export function MobileScanDocument() {
                 </button>
               </div>
               <div className="space-y-3 sm:space-y-4">
-                {analysisResult.summary.topCategories.slice(0, 4).map((cat, idx) => (
+                {currentResult.summary.topCategories.slice(0, 4).map((cat, idx) => (
                   <div key={idx} className="flex items-center gap-3 sm:gap-4">
                     <div className={cn(
                       "flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-lg sm:rounded-xl bg-gradient-to-br shadow-sm",
@@ -347,13 +437,13 @@ export function MobileScanDocument() {
           )}
 
           {/* Patterns */}
-          {analysisResult.patterns.length > 0 && (
+          {currentResult.patterns.length > 0 && (
             <div className="space-y-2 sm:space-y-3">
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-primary" strokeWidth={1.5} />
                 <h3 className="text-sm sm:text-base font-semibold text-foreground tracking-tight">Detected Patterns</h3>
               </div>
-              {analysisResult.patterns.slice(0, 3).map((pattern, idx) => (
+              {currentResult.patterns.slice(0, 3).map((pattern, idx) => (
                 <div 
                   key={pattern.id} 
                   className="rounded-2xl sm:rounded-3xl bg-card p-4 sm:p-5 shadow-sm card-hover cursor-pointer active:scale-[0.98] transition-transform"
@@ -372,13 +462,13 @@ export function MobileScanDocument() {
           )}
 
           {/* Insights */}
-          {analysisResult.insights.length > 0 && (
+          {currentResult.insights.length > 0 && (
             <div className="space-y-2 sm:space-y-3">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-primary" strokeWidth={1.5} />
                 <h3 className="text-sm sm:text-base font-semibold text-foreground tracking-tight">Behavioral Insights</h3>
               </div>
-              {analysisResult.insights.slice(0, 3).map((insight, idx) => (
+              {currentResult.insights.slice(0, 3).map((insight, idx) => (
                 <div 
                   key={insight.id} 
                   className="rounded-2xl sm:rounded-3xl border-l-4 border-primary bg-card p-4 sm:p-5 shadow-sm card-hover cursor-pointer active:scale-[0.98] transition-transform"
@@ -387,10 +477,43 @@ export function MobileScanDocument() {
                   <h4 className="text-sm sm:text-base font-semibold text-foreground">{insight.title}</h4>
                   <p className="mt-1 text-xs sm:text-sm text-muted-foreground leading-relaxed">{insight.description}</p>
                   {insight.actionable && (
-                    <p className="mt-2 sm:mt-3 text-xs sm:text-sm font-medium text-primary">{insight.actionable}</p>
+                    <p className="mt-2 sm:mt-3 text-xs sm:text-sm font-medium text-primary">💡 {insight.actionable}</p>
                   )}
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Transactions Preview */}
+          {currentResult.transactions.length > 0 && (
+            <div className="space-y-2 sm:space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm sm:text-base font-semibold text-foreground tracking-tight">
+                  Extracted Transactions
+                </h3>
+                <span className="text-xs text-muted-foreground">
+                  {currentResult.transactions.length} found
+                </span>
+              </div>
+              <div className="space-y-2">
+                {currentResult.transactions.slice(0, 5).map((txn, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between rounded-xl bg-card p-3 shadow-sm"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{txn.description}</p>
+                      <p className="text-xs text-muted-foreground">{txn.date} • {txn.category}</p>
+                    </div>
+                    <p className="text-sm font-semibold text-foreground">{formatCurrency(txn.amount)}</p>
+                  </div>
+                ))}
+              </div>
+              {currentResult.transactions.length > 5 && (
+                <p className="text-xs text-center text-muted-foreground">
+                  +{currentResult.transactions.length - 5} more transactions
+                </p>
+              )}
             </div>
           )}
         </div>
