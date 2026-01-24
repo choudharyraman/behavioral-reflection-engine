@@ -12,12 +12,14 @@ import {
   Heart,
   Search,
   Tag,
-  X
+  X,
+  Smile
 } from 'lucide-react';
 
 interface MobileTransactionListProps {
   transactions: Transaction[];
   onAddTag: (transactionId: string, tag: ContextTag) => void;
+  onEmotionTag?: (transaction: { id: string; merchant: string; amount: number }) => void;
 }
 
 const categoryIcons: Record<TransactionCategory, typeof Utensils> = {
@@ -94,7 +96,7 @@ function groupByDate(transactions: Transaction[]): Map<string, Transaction[]> {
   return groups;
 }
 
-export function MobileTransactionList({ transactions, onAddTag }: MobileTransactionListProps) {
+export function MobileTransactionList({ transactions, onAddTag, onEmotionTag }: MobileTransactionListProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [taggingId, setTaggingId] = useState<string | null>(null);
@@ -195,15 +197,28 @@ export function MobileTransactionList({ transactions, onAddTag }: MobileTransact
                         <p className="text-base font-bold text-foreground tracking-tight">
                           -₹{txn.amount.toLocaleString()}
                         </p>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 px-2 text-xs text-muted-foreground hover:text-primary"
-                          onClick={() => setTaggingId(isTagging ? null : txn.id)}
-                        >
-                          <Tag className="mr-1 h-3 w-3" strokeWidth={1.5} />
-                          Add context
-                        </Button>
+                        <div className="flex gap-1">
+                          {onEmotionTag && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 text-xs text-muted-foreground hover:text-primary"
+                              onClick={() => onEmotionTag({ id: txn.id, merchant: txn.merchant, amount: txn.amount })}
+                            >
+                              <Smile className="mr-1 h-3 w-3" strokeWidth={1.5} />
+                              Feel
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-2 text-xs text-muted-foreground hover:text-primary"
+                            onClick={() => setTaggingId(isTagging ? null : txn.id)}
+                          >
+                            <Tag className="mr-1 h-3 w-3" strokeWidth={1.5} />
+                            Context
+                          </Button>
+                        </div>
                       </div>
                     </div>
 
