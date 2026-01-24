@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 
 interface MobileHeaderProps {
   userName?: string;
+  onNotificationSettingsClick?: () => void;
 }
 
 interface Notification {
@@ -30,7 +31,7 @@ const mockNotifications: Notification[] = [
   { id: '3', title: 'Budget Alert', message: 'You\'ve used 80% of your shopping budget', time: '2d ago', read: true },
 ];
 
-export function MobileHeader({ userName = 'User' }: MobileHeaderProps) {
+export function MobileHeader({ userName = 'User', onNotificationSettingsClick }: MobileHeaderProps) {
   const greeting = getGreeting();
   const [notifications, setNotifications] = useState(mockNotifications);
   const [notifOpen, setNotifOpen] = useState(false);
