@@ -1,4 +1,6 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { MobileHeader } from '@/components/mobile/MobileHeader';
 import { MobileNavBar } from '@/components/mobile/MobileNavBar';
 import { QuickStats } from '@/components/mobile/QuickStats';
@@ -18,6 +20,7 @@ import { NotificationSettings, NotificationPreferences } from '@/components/mobi
 import { SoftNudge, DeviationEvent } from '@/components/mobile/SoftNudge';
 import { ImpulseBuysScreen } from '@/components/mobile/ImpulseBuysScreen';
 import { InsightsScreen } from '@/components/mobile/InsightsScreen';
+import { ProfileScreen } from '@/components/mobile/ProfileScreen';
 import {
   generateMockTransactions,
   generateMockPatterns,
@@ -70,6 +73,8 @@ const generateMockSeasons = (): SpendingSeason[] => [
 ];
 
 const Index = () => {
+  const navigate = useNavigate();
+  const { profile, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [insights, setInsights] = useState<InsightCardType[]>(generateMockInsights());
   const [transactions, setTransactions] = useState(generateMockTransactions(100));
@@ -154,9 +159,17 @@ const Index = () => {
     setActiveTab(tab);
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+    toast.success('Signed out successfully');
+  };
+
+  const displayName = profile?.full_name || profile?.email?.split('@')[0] || 'User';
+
   return (
     <div className="min-h-screen bg-background mesh-gradient flex flex-col">
-      {activeTab === 'overview' && <MobileHeader userName="Alex" onNotificationSettingsClick={() => setShowNotificationSettings(true)} />}
+      {activeTab === 'overview' && <MobileHeader userName={displayName} onNotificationSettingsClick={() => setShowNotificationSettings(true)} />}
       
       <main className="flex-1 overflow-y-auto">
         {activeTab === 'overview' && (
@@ -197,6 +210,7 @@ const Index = () => {
         {/* New screens */}
         {activeTab === 'impulse' && <ImpulseBuysScreen transactions={transactions} onBack={() => setActiveTab('overview')} />}
         {activeTab === 'insights' && <InsightsScreen insights={insights} onBack={() => setActiveTab('overview')} onFeedback={handleInsightFeedback} />}
+        {activeTab === 'profile' && <ProfileScreen onSignOut={handleSignOut} />}
       </main>
 
       <MobileNavBar activeTab={activeTab} onTabChange={setActiveTab} />
