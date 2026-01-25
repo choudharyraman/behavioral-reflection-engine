@@ -4,7 +4,8 @@ import {
   TrendingUp, 
   History, 
   Scan, 
-  Sparkles 
+  Sparkles,
+  User
 } from 'lucide-react';
 
 interface MobileNavBarProps {
@@ -12,13 +13,12 @@ interface MobileNavBarProps {
   onTabChange: (tab: string) => void;
 }
 
-// Reordered: Ask AI is now center (index 2)
 const navItems = [
   { id: 'overview', label: 'Home', icon: LayoutGrid },
   { id: 'patterns', label: 'Patterns', icon: TrendingUp },
   { id: 'ask', label: 'Ask AI', icon: Sparkles, isCenter: true },
   { id: 'transactions', label: 'History', icon: History },
-  { id: 'scan', label: 'Scan', icon: Scan },
+  { id: 'profile', label: 'Profile', icon: User },
 ];
 
 export function MobileNavBar({ activeTab, onTabChange }: MobileNavBarProps) {
