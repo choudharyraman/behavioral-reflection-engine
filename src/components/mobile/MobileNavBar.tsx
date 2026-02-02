@@ -23,7 +23,7 @@ const navItems = [
 export function MobileNavBar({ activeTab, onTabChange }: MobileNavBarProps) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 glass safe-area-inset-bottom">
-      <div className="flex items-center justify-around px-2 sm:px-4 py-2 max-w-lg mx-auto">
+      <div className="flex items-end justify-around px-3 py-2 max-w-lg mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -34,37 +34,37 @@ export function MobileNavBar({ activeTab, onTabChange }: MobileNavBarProps) {
               key={item.id}
               onClick={() => onTabChange(item.id)}
               className={cn(
-                "relative flex flex-col items-center justify-center gap-1 rounded-2xl px-2 sm:px-4 py-2 transition-all duration-300",
-                isCenter && "-mt-5"
+                "relative flex flex-col items-center justify-center gap-0.5 rounded-2xl transition-all duration-300",
+                isCenter ? "px-2 -mt-4" : "px-3 py-1.5"
               )}
             >
               {isCenter ? (
                 <div className={cn(
-                  "flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl transition-all duration-300",
+                  "flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300",
                   isActive 
                     ? "bg-gradient-to-br from-primary to-[hsl(260_80%_60%)] shadow-lg scale-105 pulse-glow" 
                     : "bg-gradient-to-br from-primary/90 to-[hsl(260_80%_60%)]/90 shadow-md"
                 )}>
-                  <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" strokeWidth={1.5} />
+                  <Icon className="h-6 w-6 text-primary-foreground" strokeWidth={1.5} />
                 </div>
               ) : (
                 <div className={cn(
-                  "flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl transition-all duration-300",
+                  "flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-300",
                   isActive && "bg-primary/10"
                 )}>
                   <Icon 
                     className={cn(
-                      "h-4 w-4 sm:h-5 sm:w-5 transition-all duration-300",
-                      isActive ? "text-primary scale-110" : "text-muted-foreground"
+                      "h-5 w-5 transition-all duration-300",
+                      isActive ? "text-primary" : "text-muted-foreground"
                     )} 
                     strokeWidth={isActive ? 2 : 1.5}
                   />
                 </div>
               )}
               <span className={cn(
-                "text-[10px] sm:text-[11px] font-medium tracking-wide transition-all duration-300",
+                "text-[10px] font-medium transition-all duration-300",
                 isActive ? "text-primary" : "text-muted-foreground",
-                isCenter && "mt-0.5"
+                isCenter && "mt-1"
               )}>
                 {item.label}
               </span>

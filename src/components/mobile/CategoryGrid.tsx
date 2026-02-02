@@ -70,20 +70,20 @@ export function CategoryGrid({ data }: CategoryGridProps) {
   const total = data.reduce((sum, item) => sum + item.total, 0);
   
   return (
-    <div className="space-y-4 px-4 sm:px-5 lg:px-8 animate-fade-in max-w-2xl mx-auto">
+    <div className="space-y-4 px-4 animate-fade-in max-w-2xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg sm:text-xl font-semibold text-foreground tracking-tight">Categories</h2>
-          <p className="text-xs sm:text-sm text-muted-foreground">Where your money goes</p>
+          <h2 className="text-lg font-semibold text-foreground tracking-tight">Categories</h2>
+          <p className="text-xs text-muted-foreground">Where your money goes</p>
         </div>
-        <button className="flex items-center gap-1 text-xs sm:text-sm font-medium text-primary hover:underline transition-all">
+        <button className="flex items-center gap-1 text-xs font-medium text-primary hover:underline transition-all">
           View all
-          <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
+          <ArrowRight className="h-3 w-3" />
         </button>
       </div>
       
       {/* Visual breakdown bar */}
-      <div className="flex h-3 sm:h-4 overflow-hidden rounded-full bg-muted/30 shadow-inner">
+      <div className="flex h-3 overflow-hidden rounded-full bg-muted/30 shadow-inner">
         {data.map((item, idx) => (
           <div
             key={item.category}
@@ -102,7 +102,7 @@ export function CategoryGrid({ data }: CategoryGridProps) {
       </div>
       
       {/* Category grid */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+      <div className="grid grid-cols-3 gap-2">
         {data.slice(0, 6).map((item, idx) => {
           const config = categoryConfig[item.category];
           const Icon = config.icon;
