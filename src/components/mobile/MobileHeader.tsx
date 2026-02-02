@@ -62,20 +62,20 @@ export function MobileHeader({ userName = 'User', onNotificationSettingsClick, o
   
   return (
     <header className="sticky top-0 z-40 glass safe-area-inset-top">
-      <div className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 max-w-2xl mx-auto">
-        <div className="flex items-center gap-3 sm:gap-4">
+      <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 max-w-2xl mx-auto">
+        <div className="flex items-center gap-3">
           <Avatar 
-            className="h-10 w-10 sm:h-12 sm:w-12 ring-2 ring-primary/10 shadow-md cursor-pointer hover:ring-primary/30 transition-all active:scale-95"
+            className="h-11 w-11 ring-2 ring-primary/10 shadow-md cursor-pointer hover:ring-primary/30 transition-all active:scale-95"
             onClick={onProfileClick}
           >
             <AvatarImage src="" />
-            <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold text-base sm:text-lg">
+            <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold text-base">
               {userName.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="cursor-pointer" onClick={onProfileClick}>
-            <p className="text-xs sm:text-sm font-medium text-muted-foreground tracking-wide">{greeting}</p>
-            <h1 className="text-lg sm:text-xl font-semibold text-foreground tracking-tight">{userName}</h1>
+            <p className="text-xs font-medium text-muted-foreground">{greeting}</p>
+            <h1 className="text-base font-semibold text-foreground tracking-tight">{userName}</h1>
           </div>
         </div>
 
@@ -85,12 +85,12 @@ export function MobileHeader({ userName = 'User', onNotificationSettingsClick, o
             variant="ghost" 
             size="icon" 
             onClick={toggleDarkMode}
-            className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-card shadow-sm hover:shadow-md transition-all active:scale-95"
+            className="h-10 w-10 rounded-full bg-card shadow-sm hover:shadow-md transition-all active:scale-95"
           >
             {isDark ? (
-              <Sun className="h-4 w-4 sm:h-5 sm:w-5 text-foreground" strokeWidth={1.5} />
+              <Sun className="h-[18px] w-[18px] text-foreground" strokeWidth={1.5} />
             ) : (
-              <Moon className="h-4 w-4 sm:h-5 sm:w-5 text-foreground" strokeWidth={1.5} />
+              <Moon className="h-[18px] w-[18px] text-foreground" strokeWidth={1.5} />
             )}
           </Button>
 
@@ -100,11 +100,11 @@ export function MobileHeader({ userName = 'User', onNotificationSettingsClick, o
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="relative h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-card shadow-sm hover:shadow-md transition-shadow"
+                className="relative h-10 w-10 rounded-full bg-card shadow-sm hover:shadow-md transition-shadow"
               >
-                <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-foreground" strokeWidth={1.5} />
+                <Bell className="h-[18px] w-[18px] text-foreground" strokeWidth={1.5} />
                 {unreadCount > 0 && (
-                  <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary ring-2 ring-background animate-pulse" />
+                  <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-primary ring-2 ring-background animate-pulse" />
                 )}
               </Button>
             </SheetTrigger>

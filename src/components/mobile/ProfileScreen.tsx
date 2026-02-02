@@ -85,7 +85,7 @@ export function ProfileScreen({ onSignOut }: ProfileScreenProps) {
   const currentCurrency = currencies.find(c => c.value === (profile?.currency || 'INR'));
 
   return (
-    <div className="space-y-6 pb-24">
+    <div className="space-y-4 px-4 pb-24 max-w-2xl mx-auto">
       {/* Profile Header */}
       <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-card/80">
         <CardContent className="pt-6">
@@ -214,7 +214,7 @@ export function ProfileScreen({ onSignOut }: ProfileScreenProps) {
       </Card>
 
       {/* Financial Summary */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3">
         <Card className="border-0 shadow-md">
           <CardContent className="pt-4 pb-4">
             <div className="flex items-center gap-3">

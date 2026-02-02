@@ -148,8 +148,8 @@ export function QuickStats({
   insightCount = 3
 }: QuickStatsProps) {
   return (
-    <div className="px-4 sm:px-5 lg:px-8">
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 max-w-2xl mx-auto">
+    <div className="px-4">
+      <div className="grid grid-cols-2 gap-3 max-w-2xl mx-auto">
         <QuickStat
           title="Total Spent"
           value={`₹${(totalSpent / 1000).toFixed(1)}K`}
@@ -170,7 +170,7 @@ export function QuickStats({
         />
       </div>
       
-      <div className="mt-3 sm:mt-4 grid grid-cols-2 gap-3 sm:gap-4 max-w-2xl mx-auto">
+      <div className="mt-3 grid grid-cols-2 gap-3 max-w-2xl mx-auto">
         <MiniStat
           icon={Target}
           value={String(patternCount)}

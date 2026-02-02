@@ -179,7 +179,7 @@ const Index = () => {
       
       <main className="flex-1 overflow-y-auto">
         {activeTab === 'overview' && (
-          <div className="space-y-6 sm:space-y-8 pb-24 sm:pb-28 pt-2">
+          <div className="space-y-5 pb-24 pt-2">
             <QuickStats 
               onNavigate={handleNavigate}
               totalSpent={totalSpent}
