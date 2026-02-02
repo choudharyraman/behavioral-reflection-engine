@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 interface MobileHeaderProps {
   userName?: string;
   onNotificationSettingsClick?: () => void;
+  onProfileClick?: () => void;
 }
 
 interface Notification {
@@ -31,7 +32,7 @@ const mockNotifications: Notification[] = [
   { id: '3', title: 'Budget Alert', message: 'You\'ve used 80% of your shopping budget', time: '2d ago', read: true },
 ];
 
-export function MobileHeader({ userName = 'User', onNotificationSettingsClick }: MobileHeaderProps) {
+export function MobileHeader({ userName = 'User', onNotificationSettingsClick, onProfileClick }: MobileHeaderProps) {
   const greeting = getGreeting();
   const [notifications, setNotifications] = useState(mockNotifications);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -63,13 +64,16 @@ export function MobileHeader({ userName = 'User', onNotificationSettingsClick }:
     <header className="sticky top-0 z-40 glass safe-area-inset-top">
       <div className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 max-w-2xl mx-auto">
         <div className="flex items-center gap-3 sm:gap-4">
-          <Avatar className="h-10 w-10 sm:h-12 sm:w-12 ring-2 ring-primary/10 shadow-md cursor-pointer hover:ring-primary/30 transition-all">
+          <Avatar 
+            className="h-10 w-10 sm:h-12 sm:w-12 ring-2 ring-primary/10 shadow-md cursor-pointer hover:ring-primary/30 transition-all active:scale-95"
+            onClick={onProfileClick}
+          >
             <AvatarImage src="" />
             <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold text-base sm:text-lg">
               {userName.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <div>
+          <div className="cursor-pointer" onClick={onProfileClick}>
             <p className="text-xs sm:text-sm font-medium text-muted-foreground tracking-wide">{greeting}</p>
             <h1 className="text-lg sm:text-xl font-semibold text-foreground tracking-tight">{userName}</h1>
           </div>

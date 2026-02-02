@@ -4,8 +4,7 @@ import {
   TrendingUp, 
   History, 
   Scan, 
-  Sparkles,
-  User
+  Sparkles
 } from 'lucide-react';
 
 interface MobileNavBarProps {
@@ -18,7 +17,7 @@ const navItems = [
   { id: 'patterns', label: 'Patterns', icon: TrendingUp },
   { id: 'ask', label: 'Ask AI', icon: Sparkles, isCenter: true },
   { id: 'transactions', label: 'History', icon: History },
-  { id: 'profile', label: 'Profile', icon: User },
+  { id: 'scan', label: 'Scan', icon: Scan },
 ];
 
 export function MobileNavBar({ activeTab, onTabChange }: MobileNavBarProps) {
