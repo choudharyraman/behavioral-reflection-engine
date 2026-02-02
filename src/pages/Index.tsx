@@ -169,7 +169,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background mesh-gradient flex flex-col">
-      {activeTab === 'overview' && <MobileHeader userName={displayName} onNotificationSettingsClick={() => setShowNotificationSettings(true)} />}
+      {activeTab === 'overview' && (
+        <MobileHeader 
+          userName={displayName} 
+          onNotificationSettingsClick={() => setShowNotificationSettings(true)} 
+          onProfileClick={() => setActiveTab('profile')}
+        />
+      )}
       
       <main className="flex-1 overflow-y-auto">
         {activeTab === 'overview' && (
