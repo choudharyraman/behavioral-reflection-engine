@@ -42,7 +42,17 @@ export function MomentStories({ stories, onFeedback, onDismiss }: MomentStoriesP
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
   
   const visibleStories = stories.filter(s => !s.dismissed);
-  const currentStory = visibleStories[currentIndex];
+  
+  // Reset currentIndex if it goes out of bounds
+  const safeIndex = Math.min(currentIndex, Math.max(0, visibleStories.length - 1));
+  const currentStory = visibleStories[safeIndex];
+
+  // Sync safeIndex back to state if needed
+  useEffect(() => {
+    if (safeIndex !== currentIndex) {
+      setCurrentIndex(safeIndex);
+    }
+  }, [safeIndex, currentIndex]);
 
   useEffect(() => {
     if (!currentStory) return;
@@ -51,7 +61,7 @@ export function MomentStories({ stories, onFeedback, onDismiss }: MomentStoriesP
     progressInterval.current = setInterval(() => {
       setProgress(prev => {
         if (prev >= 100) {
-          if (currentIndex < visibleStories.length - 1) {
+          if (safeIndex < visibleStories.length - 1) {
             setCurrentIndex(prev => prev + 1);
           }
           return 0;
@@ -63,7 +73,7 @@ export function MomentStories({ stories, onFeedback, onDismiss }: MomentStoriesP
     return () => {
       if (progressInterval.current) clearInterval(progressInterval.current);
     };
-  }, [currentIndex, currentStory, visibleStories.length]);
+  }, [safeIndex, currentStory, visibleStories.length]);
 
   const handleTap = (e: React.MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -72,10 +82,10 @@ export function MomentStories({ stories, onFeedback, onDismiss }: MomentStoriesP
 
     if (x < width / 3) {
       // Tap left - go back
-      if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
+      if (safeIndex > 0) setCurrentIndex(prev => prev - 1);
     } else if (x > (2 * width) / 3) {
       // Tap right - go forward
-      if (currentIndex < visibleStories.length - 1) setCurrentIndex(prev => prev + 1);
+      if (safeIndex < visibleStories.length - 1) setCurrentIndex(prev => prev + 1);
     }
   };
 
