@@ -25,7 +25,14 @@ import {
   Sparkles,
   Edit3,
   Check,
-  X
+  X,
+  Download,
+  FileText,
+  MessageCircle,
+  ExternalLink,
+  Link2,
+  CreditCard,
+  Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -297,18 +304,86 @@ export function ProfileScreen({ onSignOut }: ProfileScreenProps) {
 
       <Card className="border-0 shadow-md">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Support</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">Data & Privacy</CardTitle>
         </CardHeader>
         <CardContent className="space-y-1">
+          <SettingItem
+            icon={Download}
+            label="Export My Data"
+            value="Download all your transactions"
+            action={<ChevronRight className="h-4 w-4 text-muted-foreground" />}
+            onClick={() => toast.info('Export feature coming soon!')}
+          />
+          <SettingItem
+            icon={FileText}
+            label="Spending Report"
+            value="Generate monthly summary"
+            action={<ChevronRight className="h-4 w-4 text-muted-foreground" />}
+            onClick={() => toast.info('Reports coming soon!')}
+          />
           <SettingItem
             icon={Shield}
             label="Privacy & Security"
             action={<ChevronRight className="h-4 w-4 text-muted-foreground" />}
           />
+        </CardContent>
+      </Card>
+
+      <Card className="border-0 shadow-md">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground">Connected Accounts</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-1">
+          <SettingItem
+            icon={Link2}
+            label="Link Bank Account"
+            value="Connect for automatic tracking"
+            action={<ChevronRight className="h-4 w-4 text-muted-foreground" />}
+            onClick={() => toast.info('Bank linking coming soon!')}
+          />
+          <SettingItem
+            icon={CreditCard}
+            label="Payment Methods"
+            value="Manage cards & UPI"
+            action={<ChevronRight className="h-4 w-4 text-muted-foreground" />}
+            onClick={() => toast.info('Payment methods coming soon!')}
+          />
+        </CardContent>
+      </Card>
+
+      <Card className="border-0 shadow-md">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground">Support</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-1">
           <SettingItem
             icon={HelpCircle}
             label="Help Center"
+            value="FAQs & tutorials"
+            action={<ExternalLink className="h-4 w-4 text-muted-foreground" />}
+          />
+          <SettingItem
+            icon={MessageCircle}
+            label="Contact Support"
+            value="We typically reply within 24h"
             action={<ChevronRight className="h-4 w-4 text-muted-foreground" />}
+            onClick={() => toast.info('Support chat coming soon!')}
+          />
+        </CardContent>
+      </Card>
+
+      <Card className="border-0 shadow-md border-destructive/20">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-destructive">Danger Zone</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-1">
+          <SettingItem
+            icon={Trash2}
+            label="Delete Account"
+            value="Permanently remove all data"
+            action={<ChevronRight className="h-4 w-4 text-destructive" />}
+            onClick={() => toast.error('Please contact support to delete your account')}
+            destructive
           />
         </CardContent>
       </Card>
@@ -322,6 +397,11 @@ export function ProfileScreen({ onSignOut }: ProfileScreenProps) {
         <LogOut className="h-4 w-4 mr-2" />
         Sign Out
       </Button>
+
+      {/* Built by credit */}
+      <p className="text-center text-xs text-muted-foreground/60 pb-4">
+        Built by <span className="font-medium text-muted-foreground">Raman Choudhary</span>
+      </p>
     </div>
   );
 }
@@ -330,20 +410,39 @@ function SettingItem({
   icon: Icon, 
   label, 
   value,
-  action 
+  action,
+  onClick,
+  destructive = false
 }: { 
   icon: React.ElementType; 
   label: string;
   value?: string;
   action?: React.ReactNode;
+  onClick?: () => void;
+  destructive?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer">
-      <div className="h-9 w-9 rounded-xl bg-muted flex items-center justify-center flex-shrink-0">
-        <Icon className="h-4 w-4 text-muted-foreground" />
+    <div 
+      className={cn(
+        "flex items-center gap-4 p-3 rounded-xl transition-colors cursor-pointer",
+        destructive ? "hover:bg-destructive/10" : "hover:bg-muted/50"
+      )}
+      onClick={onClick}
+    >
+      <div className={cn(
+        "h-9 w-9 rounded-xl flex items-center justify-center flex-shrink-0",
+        destructive ? "bg-destructive/10" : "bg-muted"
+      )}>
+        <Icon className={cn(
+          "h-4 w-4",
+          destructive ? "text-destructive" : "text-muted-foreground"
+        )} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-foreground">{label}</p>
+        <p className={cn(
+          "text-sm font-medium",
+          destructive ? "text-destructive" : "text-foreground"
+        )}>{label}</p>
         {value && (
           <p className="text-xs text-muted-foreground truncate">{value}</p>
         )}
