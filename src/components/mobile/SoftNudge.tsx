@@ -7,11 +7,13 @@ import {
   ChevronRight,
   MessageSquare,
   Clock,
-  BellOff
+  BellOff,
+  Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { quickResponseLabels, getRandomNudgeCopy } from '@/lib/nudgeCopy';
 
 export interface DeviationEvent {
   id: string;
@@ -24,6 +26,7 @@ export interface DeviationEvent {
   narrative: string;
   acknowledged: boolean;
   acknowledgedResponse?: string;
+  nudgeTitle?: string;
 }
 
 interface SoftNudgeProps {
@@ -32,13 +35,6 @@ interface SoftNudgeProps {
   onDismiss: () => void;
   onMuteCategory: (category: string) => void;
 }
-
-const quickResponses = [
-  { id: 'oneoff', label: 'This is a one-time thing', emoji: '✨' },
-  { id: 'routine', label: 'Change in routine', emoji: '🔄' },
-  { id: 'aware', label: 'Already aware', emoji: '👍' },
-  { id: 'later', label: 'Will look later', emoji: '⏰' },
-];
 
 export function SoftNudge({ deviation, onAcknowledge, onDismiss, onMuteCategory }: SoftNudgeProps) {
   const [selectedResponse, setSelectedResponse] = useState<string | null>(null);
@@ -55,11 +51,17 @@ export function SoftNudge({ deviation, onAcknowledge, onDismiss, onMuteCategory 
     }
   };
 
+  // Get catchy copy based on category
+  const nudgeCopy = getRandomNudgeCopy(
+    deviation.category, 
+    deviation.deviationPercentage >= 50 ? 'high_deviation' : 'moderate_deviation'
+  );
+
   return (
     <Dialog open={!!deviation} onOpenChange={(open) => !open && onDismiss()}>
       <DialogContent className="sm:max-w-md rounded-3xl p-0 gap-0 overflow-hidden">
-        {/* Header */}
-        <div className="relative p-5 pb-4 bg-gradient-to-b from-[hsl(var(--warning))]/10 to-transparent">
+        {/* Header with catchy title */}
+        <div className="relative p-5 pb-4 bg-gradient-to-b from-primary/10 to-transparent">
           <button
             onClick={onDismiss}
             className="absolute top-4 right-4 p-2 rounded-full hover:bg-muted/50 transition-colors"
@@ -68,12 +70,12 @@ export function SoftNudge({ deviation, onAcknowledge, onDismiss, onMuteCategory 
           </button>
           
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[hsl(var(--warning))]/20">
-              <AlertCircle className="h-6 w-6 text-[hsl(var(--warning))]" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/20">
+              <Sparkles className="h-6 w-6 text-primary" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-foreground">
-                Noticed a change
+                {deviation.nudgeTitle || nudgeCopy.title}
               </h3>
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <Clock className="h-3 w-3" />
@@ -84,9 +86,9 @@ export function SoftNudge({ deviation, onAcknowledge, onDismiss, onMuteCategory 
         </div>
 
         <div className="p-5 space-y-4">
-          {/* Narrative */}
+          {/* Catchy narrative */}
           <p className="text-sm text-foreground leading-relaxed">
-            {deviation.narrative}
+            {deviation.narrative || nudgeCopy.narrative}
           </p>
 
           {/* Stats */}
@@ -125,13 +127,13 @@ export function SoftNudge({ deviation, onAcknowledge, onDismiss, onMuteCategory 
             </div>
           )}
 
-          {/* Quick responses */}
+          {/* Quick responses with enhanced copy */}
           <div>
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
-              Does this feel accurate?
+              Does this feel right?
             </p>
             <div className="grid grid-cols-2 gap-2">
-              {quickResponses.map((response) => (
+              {quickResponseLabels.map((response) => (
                 <button
                   key={response.id}
                   onClick={() => setSelectedResponse(response.id)}
