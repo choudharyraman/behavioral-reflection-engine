@@ -164,15 +164,16 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex flex-col overflow-hidden relative">
-      {/* Material-inspired gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-500" />
+      {/* Dark gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 via-neutral-900 to-zinc-900" />
       
-      {/* Decorative shapes */}
+      {/* Decorative shapes with red/gold accents */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute top-1/4 -left-20 w-72 h-72 bg-pink-400/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-80 h-80 bg-indigo-400/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/3 left-1/3 w-64 h-64 bg-white/5 rounded-full blur-2xl" />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-red-600/15 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 -left-20 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-80 h-80 bg-red-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/3 left-1/3 w-64 h-64 bg-amber-400/5 rounded-full blur-2xl" />
+        <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-yellow-500/5 rounded-full blur-2xl" />
       </div>
 
       {/* Content */}
@@ -183,28 +184,29 @@ export default function Auth() {
           {authMode === 'forgot' && (
             <button
               onClick={() => { setAuthMode('signin'); setResetEmailSent(false); }}
-              className="absolute top-6 left-6 p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-colors"
+              className="absolute top-6 left-6 p-2 rounded-full bg-zinc-800/50 hover:bg-zinc-700/50 backdrop-blur-sm border border-zinc-700/50 transition-colors"
             >
-              <ArrowLeft className="h-5 w-5 text-white" />
+              <ArrowLeft className="h-5 w-5 text-zinc-300" />
             </button>
           )}
 
-          {/* Card Container */}
-          <div className="bg-card/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/10">
+          {/* Card Container - Dark glassmorphism */}
+          <div className="bg-zinc-900/80 backdrop-blur-2xl rounded-3xl shadow-2xl p-8 border border-zinc-700/50 ring-1 ring-amber-500/10">
             
             {/* Logo & Branding */}
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center mb-4">
+              <div className="inline-flex items-center justify-center mb-4 relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-red-500/20 to-amber-500/20 rounded-2xl blur-xl" />
                 <img 
                   src={logoImage} 
                   alt="SpendAI Logo" 
-                  className="h-20 w-20 rounded-2xl shadow-lg"
+                  className="relative h-20 w-20 rounded-2xl shadow-lg ring-2 ring-amber-500/20"
                 />
               </div>
-              <h1 className="text-2xl font-bold tracking-tight text-foreground">
+              <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
                 {getTitle()}
               </h1>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-1 text-sm text-zinc-400">
                 {getSubtitle()}
               </p>
             </div>
@@ -218,7 +220,7 @@ export default function Auth() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full h-12 text-sm font-medium gap-3 rounded-xl border border-border bg-background hover:bg-accent transition-all duration-200 active:scale-[0.98]"
+                    className="w-full h-12 text-sm font-medium gap-3 rounded-xl border border-zinc-700 bg-zinc-800/50 text-zinc-200 hover:bg-zinc-700/50 hover:border-zinc-600 transition-all duration-200 active:scale-[0.98]"
                     onClick={handleGoogleSignIn}
                     disabled={isSubmitting}
                   >
@@ -234,10 +236,10 @@ export default function Auth() {
                   {/* Divider */}
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-border" />
+                      <div className="w-full border-t border-zinc-700/50" />
                     </div>
                     <div className="relative flex justify-center">
-                      <span className="bg-card px-4 text-xs text-muted-foreground">
+                      <span className="bg-zinc-900/80 px-4 text-xs text-zinc-500">
                         or continue with email
                       </span>
                     </div>
@@ -248,17 +250,17 @@ export default function Auth() {
               {/* Reset Email Sent Confirmation */}
               {authMode === 'forgot' && resetEmailSent ? (
                 <div className="text-center py-6 animate-fade-in">
-                  <div className="inline-flex items-center justify-center h-14 w-14 rounded-full bg-primary/10 mb-4">
-                    <Mail className="h-7 w-7 text-primary" />
+                  <div className="inline-flex items-center justify-center h-14 w-14 rounded-full bg-amber-500/10 mb-4">
+                    <Mail className="h-7 w-7 text-amber-500" />
                   </div>
-                  <h3 className="text-base font-semibold text-foreground mb-1">Check your email</h3>
-                  <p className="text-sm text-muted-foreground mb-5">
+                  <h3 className="text-base font-semibold text-zinc-100 mb-1">Check your email</h3>
+                  <p className="text-sm text-zinc-400 mb-5">
                     We sent a password reset link to<br />
-                    <span className="font-medium text-foreground">{email}</span>
+                    <span className="font-medium text-amber-400">{email}</span>
                   </p>
                   <Button
                     variant="outline"
-                    className="h-10 rounded-xl text-sm"
+                    className="h-10 rounded-xl text-sm border-zinc-700 bg-zinc-800/50 text-zinc-200 hover:bg-zinc-700/50"
                     onClick={() => { setAuthMode('signin'); setResetEmailSent(false); }}
                   >
                     Back to Sign In
@@ -271,13 +273,13 @@ export default function Auth() {
                   {/* Name Field (Sign Up Only) */}
                   {authMode === 'signup' && (
                     <div className="space-y-1.5 animate-fade-in">
-                      <Label htmlFor="name" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      <Label htmlFor="name" className="text-xs font-medium text-zinc-500 uppercase tracking-wide">
                         Full Name
                       </Label>
                       <div className="relative">
                         <div className={cn(
                           "absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-200",
-                          focusedField === 'name' ? "text-primary" : "text-muted-foreground"
+                          focusedField === 'name' ? "text-amber-500" : "text-zinc-500"
                         )}>
                           <User className="h-4 w-4" strokeWidth={2} />
                         </div>
@@ -289,7 +291,7 @@ export default function Auth() {
                           onChange={(e) => setFullName(e.target.value)}
                           onFocus={() => setFocusedField('name')}
                           onBlur={() => setFocusedField(null)}
-                          className="h-11 pl-10 pr-4 text-sm rounded-xl border border-border bg-background focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                          className="h-11 pl-10 pr-4 text-sm rounded-xl border border-zinc-700 bg-zinc-800/50 text-zinc-100 placeholder:text-zinc-500 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 transition-all duration-200"
                         />
                       </div>
                     </div>
@@ -297,13 +299,13 @@ export default function Auth() {
 
                 {/* Email Field */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="email" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  <Label htmlFor="email" className="text-xs font-medium text-zinc-500 uppercase tracking-wide">
                     Email Address
                   </Label>
                   <div className="relative">
                     <div className={cn(
                       "absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-200",
-                      focusedField === 'email' ? "text-primary" : "text-muted-foreground"
+                      focusedField === 'email' ? "text-amber-500" : "text-zinc-500"
                     )}>
                       <Mail className="h-4 w-4" strokeWidth={2} />
                     </div>
@@ -315,7 +317,7 @@ export default function Auth() {
                       onChange={(e) => setEmail(e.target.value)}
                       onFocus={() => setFocusedField('email')}
                       onBlur={() => setFocusedField(null)}
-                      className="h-11 pl-10 pr-4 text-sm rounded-xl border border-border bg-background focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                      className="h-11 pl-10 pr-4 text-sm rounded-xl border border-zinc-700 bg-zinc-800/50 text-zinc-100 placeholder:text-zinc-500 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 transition-all duration-200"
                       required
                     />
                   </div>
@@ -325,14 +327,14 @@ export default function Auth() {
                   {authMode !== 'forgot' && (
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="password" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        <Label htmlFor="password" className="text-xs font-medium text-zinc-500 uppercase tracking-wide">
                           Password
                         </Label>
                         {authMode === 'signin' && (
                           <button
                             type="button"
                             onClick={() => setAuthMode('forgot')}
-                            className="text-xs text-primary hover:underline font-medium"
+                            className="text-xs text-amber-500 hover:text-amber-400 hover:underline font-medium"
                           >
                             Forgot?
                           </button>
@@ -341,7 +343,7 @@ export default function Auth() {
                       <div className="relative">
                         <div className={cn(
                           "absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-200",
-                          focusedField === 'password' ? "text-primary" : "text-muted-foreground"
+                          focusedField === 'password' ? "text-amber-500" : "text-zinc-500"
                         )}>
                           <Lock className="h-4 w-4" strokeWidth={2} />
                         </div>
@@ -353,13 +355,13 @@ export default function Auth() {
                           onChange={(e) => setPassword(e.target.value)}
                           onFocus={() => setFocusedField('password')}
                           onBlur={() => setFocusedField(null)}
-                          className="h-11 pl-10 pr-12 text-sm rounded-xl border border-border bg-background focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                          className="h-11 pl-10 pr-12 text-sm rounded-xl border border-zinc-700 bg-zinc-800/50 text-zinc-100 placeholder:text-zinc-500 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 transition-all duration-200"
                           required
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition-colors"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-zinc-500 hover:text-zinc-300 transition-colors"
                         >
                           {showPassword ? (
                             <EyeOff className="h-4 w-4" strokeWidth={2} />
@@ -369,7 +371,7 @@ export default function Auth() {
                         </button>
                       </div>
                       {authMode === 'signup' && (
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-zinc-500">
                           At least 6 characters
                         </p>
                       )}
@@ -379,12 +381,12 @@ export default function Auth() {
                   {/* Submit Button */}
                   <Button
                     type="submit"
-                    className="w-full h-11 text-sm font-semibold rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-purple-500/25 transition-all duration-200 active:scale-[0.98] mt-1"
+                    className="w-full h-11 text-sm font-semibold rounded-xl bg-gradient-to-r from-red-600 via-red-500 to-amber-500 hover:from-red-700 hover:via-red-600 hover:to-amber-600 text-white shadow-lg shadow-red-500/25 transition-all duration-200 active:scale-[0.98] mt-1"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
                       <div className="flex items-center gap-2">
-                        <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                        <div className="h-4 w-4 rounded-full border-2 border-amber-200/30 border-t-amber-200 animate-spin" />
                         {authMode === 'signup' ? 'Creating...' : authMode === 'forgot' ? 'Sending...' : 'Signing in...'}
                       </div>
                     ) : (
@@ -403,12 +405,12 @@ export default function Auth() {
                   <button
                     type="button"
                     onClick={() => setAuthMode(authMode === 'signup' ? 'signin' : 'signup')}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
                   >
                     {authMode === 'signup' ? (
-                      <>Already have an account? <span className="font-semibold text-primary">Sign In</span></>
+                      <>Already have an account? <span className="font-semibold text-amber-500">Sign In</span></>
                     ) : (
-                      <>Don't have an account? <span className="font-semibold text-primary">Sign Up</span></>
+                      <>Don't have an account? <span className="font-semibold text-amber-500">Sign Up</span></>
                     )}
                   </button>
                 </div>
@@ -418,16 +420,16 @@ export default function Auth() {
 
           {/* Footer */}
           <div className="mt-8 text-center space-y-3">
-            <p className="text-xs text-white/60 leading-relaxed">
+            <p className="text-xs text-zinc-500 leading-relaxed">
               By continuing, you agree to our{' '}
-              <button className="text-white/80 hover:underline">Terms of Service</button>
+              <button className="text-zinc-400 hover:text-amber-500 hover:underline transition-colors">Terms of Service</button>
               {' '}and{' '}
-              <button className="text-white/80 hover:underline">Privacy Policy</button>
+              <button className="text-zinc-400 hover:text-amber-500 hover:underline transition-colors">Privacy Policy</button>
             </p>
             
             {/* Built by credit */}
-            <p className="text-xs text-white/40">
-              Built by <span className="font-medium text-white/60">Raman Choudhary</span>
+            <p className="text-xs text-zinc-600">
+              Built by <span className="font-medium text-amber-500/70">Raman Choudhary</span>
             </p>
           </div>
         </div>
