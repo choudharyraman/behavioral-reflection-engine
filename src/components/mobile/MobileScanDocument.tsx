@@ -21,7 +21,8 @@ import {
   ArrowRight,
   History,
   Trash2,
-  Eye
+  Eye,
+  ImageIcon
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -71,6 +72,8 @@ const categoryIcons: Record<string, React.ReactNode> = {
   entertainment: <Film className="h-4 w-4" strokeWidth={1.5} />,
   bills: <Receipt className="h-4 w-4" strokeWidth={1.5} />,
   health: <Heart className="h-4 w-4" strokeWidth={1.5} />,
+  transfer: <ArrowRight className="h-4 w-4" strokeWidth={1.5} />,
+  payment: <Receipt className="h-4 w-4" strokeWidth={1.5} />,
 };
 
 const categoryGradients: Record<string, string> = {
@@ -80,6 +83,8 @@ const categoryGradients: Record<string, string> = {
   entertainment: 'from-[hsl(var(--category-entertainment))] to-[hsl(var(--category-entertainment))]/80',
   bills: 'from-[hsl(var(--category-bills))] to-[hsl(var(--category-bills))]/80',
   health: 'from-[hsl(var(--category-health))] to-[hsl(var(--category-health))]/80',
+  transfer: 'from-primary to-primary/80',
+  payment: 'from-muted to-muted/80',
 };
 
 const confidenceStyles = {
@@ -93,6 +98,7 @@ type ViewMode = 'upload' | 'analyzing' | 'results' | 'history';
 export function MobileScanDocument() {
   const [viewMode, setViewMode] = useState<ViewMode>('upload');
   const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [analysisStep, setAnalysisStep] = useState('');
   const [currentResult, setCurrentResult] = useState<AnalysisResult | null>(null);
   const [analysisHistory, setAnalysisHistory] = useState<AnalysisResult[]>([]);
   const [fileName, setFileName] = useState<string>('');
@@ -106,24 +112,69 @@ export function MobileScanDocument() {
     });
   };
 
+  const readFileAsBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        // Remove the data URL prefix to get just the base64
+        const base64 = result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const extractTextFromImage = async (file: File): Promise<string> => {
+    setAnalysisStep('Scanning image with AI vision...');
+    setAnalysisProgress(15);
+
+    const base64 = await readFileAsBase64(file);
+    
+    const { data, error } = await supabase.functions.invoke('extract-image-text', {
+      body: { 
+        imageBase64: base64,
+        mimeType: file.type 
+      }
+    });
+
+    if (error) throw error;
+    if (data.error) throw new Error(data.error);
+
+    return data.text;
+  };
+
   const analyzeDocument = async (text: string, name: string) => {
     setViewMode('analyzing');
-    setAnalysisProgress(0);
+    setAnalysisProgress(30);
+    setAnalysisStep('Extracting transactions...');
 
     const progressInterval = setInterval(() => {
-      setAnalysisProgress(prev => Math.min(prev + 10, 90));
-    }, 500);
+      setAnalysisProgress(prev => {
+        if (prev >= 90) return prev;
+        return prev + 5;
+      });
+    }, 800);
 
     try {
+      setAnalysisStep('Detecting spending patterns...');
+      setAnalysisProgress(50);
+
       const { data, error } = await supabase.functions.invoke('analyze-statement', {
         body: { documentText: text }
       });
 
       clearInterval(progressInterval);
-      setAnalysisProgress(100);
+      
+      setAnalysisStep('Generating insights...');
+      setAnalysisProgress(90);
 
       if (error) throw error;
       if (data.error) throw new Error(data.error);
+
+      setAnalysisProgress(100);
+      setAnalysisStep('Complete!');
 
       const result: AnalysisResult = {
         id: `analysis-${Date.now()}`,
@@ -133,56 +184,68 @@ export function MobileScanDocument() {
       };
 
       setCurrentResult(result);
-      setAnalysisHistory(prev => [result, ...prev].slice(0, 10)); // Keep last 10
+      setAnalysisHistory(prev => [result, ...prev].slice(0, 10));
       setViewMode('results');
       toast.success('Analysis complete!');
     } catch (error) {
+      clearInterval(progressInterval);
       console.error('Analysis error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to analyze document');
       setViewMode('upload');
     }
   };
 
-  const handleFile = async (file: File) => {
+  const handleFile = async (file: File, isImage: boolean = false) => {
     if (!file) return;
-
-    const validTypes = ['application/pdf', 'text/csv', 'text/plain'];
-    const validExtensions = ['.pdf', '.csv', '.txt'];
-    
-    const hasValidType = validTypes.includes(file.type);
-    const hasValidExtension = validExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
-
-    if (!hasValidType && !hasValidExtension) {
-      toast.error('Please upload a PDF, CSV, or TXT file');
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('File size must be less than 10MB');
-      return;
-    }
 
     setFileName(file.name);
 
     try {
-      if (file.type === 'text/plain' || file.type === 'text/csv' || 
+      if (isImage || file.type.startsWith('image/')) {
+        // Handle image files - use vision AI to extract text
+        setViewMode('analyzing');
+        setAnalysisProgress(5);
+        setAnalysisStep('Processing image...');
+        
+        const extractedText = await extractTextFromImage(file);
+        await analyzeDocument(extractedText, file.name);
+      } else if (file.type === 'text/plain' || file.type === 'text/csv' || 
           file.name.endsWith('.txt') || file.name.endsWith('.csv')) {
+        // Handle text/CSV files
         const text = await readFileAsText(file);
         await analyzeDocument(text, file.name);
       } else if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-        toast.info('Reading PDF content...');
+        // Handle PDF - try to read as text first
+        toast.info('Processing PDF...');
         const text = await readFileAsText(file);
-        await analyzeDocument(text.length > 100 ? text : `PDF Document: ${file.name}`, file.name);
+        if (text.length > 100) {
+          await analyzeDocument(text, file.name);
+        } else {
+          toast.error('Could not read PDF. Please try a CSV or image instead.');
+          setViewMode('upload');
+        }
+      } else {
+        toast.error('Unsupported file type. Please upload CSV, TXT, PDF, or an image.');
       }
     } catch (error) {
       console.error('File processing error:', error);
-      toast.error('Failed to process file');
+      toast.error(error instanceof Error ? error.message : 'Failed to process file');
+      setViewMode('upload');
     }
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) handleFile(file);
+    if (file) handleFile(file, false);
+    // Reset input to allow re-selecting same file
+    e.target.value = '';
+  };
+
+  const handleImageInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleFile(file, true);
+    // Reset input to allow re-selecting same file
+    e.target.value = '';
   };
 
   const viewHistoryItem = (result: AnalysisResult) => {
@@ -221,7 +284,7 @@ export function MobileScanDocument() {
             Scan Your Statement
           </h2>
           <p className="mt-2 text-sm sm:text-base text-muted-foreground text-center max-w-xs leading-relaxed">
-            Upload your bank statement for AI-powered behavioral analysis
+            Upload your bank statement or take a photo for AI-powered analysis
           </p>
           
           <div className="mt-8 sm:mt-10 flex gap-3 sm:gap-4 w-full max-w-xs">
@@ -248,7 +311,7 @@ export function MobileScanDocument() {
                 type="file"
                 accept="image/*"
                 capture="environment"
-                onChange={handleFileInput}
+                onChange={handleImageInput}
                 className="hidden"
               />
               <div className="flex flex-col items-center gap-2 sm:gap-3 rounded-2xl sm:rounded-3xl bg-card p-5 sm:p-6 shadow-sm transition-all duration-300 card-hover h-full">
@@ -257,11 +320,25 @@ export function MobileScanDocument() {
                 </div>
                 <div className="text-center">
                   <span className="block text-xs sm:text-sm font-semibold text-foreground">Take Photo</span>
-                  <span className="text-[10px] sm:text-xs text-muted-foreground">Scan receipt</span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground">Scan statement</span>
                 </div>
               </div>
             </label>
           </div>
+
+          {/* Image gallery option */}
+          <label className="cursor-pointer mt-3 w-full max-w-xs active:scale-[0.98] transition-transform">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageInput}
+              className="hidden"
+            />
+            <div className="flex items-center justify-center gap-2 rounded-xl bg-card/50 p-3 shadow-sm transition-all duration-300 hover:bg-card">
+              <ImageIcon className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+              <span className="text-xs sm:text-sm text-muted-foreground">Choose from gallery</span>
+            </div>
+          </label>
 
           {/* History button */}
           {analysisHistory.length > 0 && (
@@ -354,10 +431,7 @@ export function MobileScanDocument() {
           <div className="mt-6 sm:mt-8 w-full max-w-xs">
             <Progress value={analysisProgress} className="h-1.5 sm:h-2" />
             <p className="mt-2 sm:mt-3 text-xs sm:text-sm text-center text-muted-foreground">
-              {analysisProgress < 30 && "Reading document..."}
-              {analysisProgress >= 30 && analysisProgress < 60 && "Extracting transactions..."}
-              {analysisProgress >= 60 && analysisProgress < 90 && "Detecting patterns..."}
-              {analysisProgress >= 90 && "Generating insights..."}
+              {analysisStep || "Processing..."}
             </p>
           </div>
         </div>
@@ -403,6 +477,15 @@ export function MobileScanDocument() {
               </p>
             </div>
           </div>
+
+          {/* Date Range */}
+          {currentResult.summary.dateRange?.start && currentResult.summary.dateRange?.end && (
+            <div className="rounded-xl bg-card/50 p-3 text-center">
+              <p className="text-xs text-muted-foreground">
+                Period: {currentResult.summary.dateRange.start} to {currentResult.summary.dateRange.end}
+              </p>
+            </div>
+          )}
 
           {/* Top Categories */}
           {currentResult.summary.topCategories.length > 0 && (
