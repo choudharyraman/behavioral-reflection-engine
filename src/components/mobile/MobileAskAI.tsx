@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Sparkles, Loader2, Mic, RefreshCw, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 interface Message {
@@ -22,6 +21,104 @@ const suggestedQuestions = [
   "What triggers my late-night orders?",
   "Which days do I spend the most?",
 ];
+
+// SSE streaming chat function
+async function streamChat({
+  messages,
+  onDelta,
+  onDone,
+  onError,
+}: {
+  messages: Array<{ role: string; content: string }>;
+  onDelta: (deltaText: string) => void;
+  onDone: () => void;
+  onError: (error: string) => void;
+}) {
+  const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-ai`;
+
+  try {
+    const resp = await fetch(CHAT_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      },
+      body: JSON.stringify({ messages }),
+    });
+
+    if (resp.status === 429) {
+      onError("Rate limit exceeded. Please try again later.");
+      return;
+    }
+    if (resp.status === 402) {
+      onError("Usage limit reached. Please check your account.");
+      return;
+    }
+    if (!resp.ok || !resp.body) {
+      const errorData = await resp.json().catch(() => ({}));
+      onError(errorData.error || "Failed to get AI response");
+      return;
+    }
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let textBuffer = "";
+    let streamDone = false;
+
+    while (!streamDone) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      textBuffer += decoder.decode(value, { stream: true });
+
+      let newlineIndex: number;
+      while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+        let line = textBuffer.slice(0, newlineIndex);
+        textBuffer = textBuffer.slice(newlineIndex + 1);
+
+        if (line.endsWith("\r")) line = line.slice(0, -1);
+        if (line.startsWith(":") || line.trim() === "") continue;
+        if (!line.startsWith("data: ")) continue;
+
+        const jsonStr = line.slice(6).trim();
+        if (jsonStr === "[DONE]") {
+          streamDone = true;
+          break;
+        }
+
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+          if (content) onDelta(content);
+        } catch {
+          textBuffer = line + "\n" + textBuffer;
+          break;
+        }
+      }
+    }
+
+    // Final flush
+    if (textBuffer.trim()) {
+      for (let raw of textBuffer.split("\n")) {
+        if (!raw) continue;
+        if (raw.endsWith("\r")) raw = raw.slice(0, -1);
+        if (raw.startsWith(":") || raw.trim() === "") continue;
+        if (!raw.startsWith("data: ")) continue;
+        const jsonStr = raw.slice(6).trim();
+        if (jsonStr === "[DONE]") continue;
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+          if (content) onDelta(content);
+        } catch { /* ignore */ }
+      }
+    }
+
+    onDone();
+  } catch (error) {
+    console.error("Stream error:", error);
+    onError(error instanceof Error ? error.message : "Connection error");
+  }
+}
 
 export function MobileAskAI() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -50,35 +147,52 @@ export function MobileAskAI() {
     setInput('');
     setIsLoading(true);
 
-    try {
-      // Build conversation history for context
-      const conversationHistory = messages.map(m => ({
-        role: m.role,
-        content: m.content
-      }));
+    // Build conversation history
+    const conversationHistory = messages.map(m => ({
+      role: m.role,
+      content: m.content
+    }));
 
-      const { data, error } = await supabase.functions.invoke('chat-ai', {
-        body: { 
-          message: messageText,
-          conversationHistory 
+    let assistantContent = "";
+
+    const updateAssistantMessage = (chunk: string) => {
+      assistantContent += chunk;
+      setMessages(prev => {
+        const last = prev[prev.length - 1];
+        if (last?.role === 'assistant' && !last.error) {
+          return prev.map((m, i) => 
+            i === prev.length - 1 ? { ...m, content: assistantContent } : m
+          );
         }
+        return [...prev, {
+          id: `msg-${Date.now()}`,
+          role: 'assistant' as const,
+          content: assistantContent,
+          timestamp: new Date(),
+        }];
       });
+    };
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
-
-      const aiMessage: Message = {
-        id: `msg-${Date.now()}`,
-        role: 'assistant',
-        content: data.response || "I couldn't generate a response. Please try again.",
-        timestamp: new Date(),
-      };
-
-      setMessages(prev => [...prev, aiMessage]);
+    try {
+      await streamChat({
+        messages: [...conversationHistory, { role: 'user', content: messageText }],
+        onDelta: (chunk) => updateAssistantMessage(chunk),
+        onDone: () => setIsLoading(false),
+        onError: (errorMsg) => {
+          const errorMessage: Message = {
+            id: `msg-${Date.now()}`,
+            role: 'assistant',
+            content: errorMsg,
+            timestamp: new Date(),
+            error: true,
+          };
+          setMessages(prev => [...prev, errorMessage]);
+          setIsLoading(false);
+          toast.error('Failed to get AI response');
+        },
+      });
     } catch (error) {
       console.error('Chat error:', error);
-      
-      // Add error message
       const errorMessage: Message = {
         id: `msg-${Date.now()}`,
         role: 'assistant',
@@ -87,9 +201,8 @@ export function MobileAskAI() {
         error: true,
       };
       setMessages(prev => [...prev, errorMessage]);
-      toast.error('Failed to get AI response');
-    } finally {
       setIsLoading(false);
+      toast.error('Failed to get AI response');
     }
   };
 
@@ -99,10 +212,8 @@ export function MobileAskAI() {
   };
 
   const handleRetry = (messageIndex: number) => {
-    // Find the user message before the error
     const userMessage = messages[messageIndex - 1];
     if (userMessage?.role === 'user') {
-      // Remove error message and retry
       setMessages(prev => prev.slice(0, messageIndex));
       handleSend(userMessage.content);
     }
@@ -209,7 +320,7 @@ export function MobileAskAI() {
           </>
         )}
 
-        {isLoading && (
+        {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
           <div className="flex justify-start animate-fade-in">
             <div className="flex items-center gap-2 sm:gap-3 rounded-2xl sm:rounded-3xl bg-card px-4 sm:px-5 py-3 sm:py-4 shadow-sm">
               <div className="flex gap-1">
@@ -217,7 +328,7 @@ export function MobileAskAI() {
                 <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }} />
                 <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
-              <span className="text-xs sm:text-sm text-muted-foreground">Analyzing your patterns...</span>
+              <span className="text-xs sm:text-sm text-muted-foreground">Thinking...</span>
             </div>
           </div>
         )}
