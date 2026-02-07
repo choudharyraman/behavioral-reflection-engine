@@ -179,7 +179,7 @@ const Index = () => {
       
       <main className="flex-1 overflow-y-auto">
         {activeTab === 'overview' && (
-          <div className="space-y-5 pb-24 pt-2">
+          <div className="space-y-6 pb-28 pt-4">
             <QuickStats 
               onNavigate={handleNavigate}
               totalSpent={totalSpent}
@@ -188,10 +188,10 @@ const Index = () => {
               insightCount={insights.filter(i => !i.userFeedback).length}
             />
             {stories.filter(s => !s.dismissed).length > 0 && (
-              <div className="px-4"><MomentStories stories={stories} onFeedback={handleStoryFeedback} onDismiss={handleStoryDismiss} /></div>
+              <div className="px-5"><MomentStories stories={stories} onFeedback={handleStoryFeedback} onDismiss={handleStoryDismiss} /></div>
             )}
             <InsightCarousel insights={insights} onFeedback={handleInsightFeedback} />
-            {Object.keys(emotionCounts).length > 0 && <div className="px-4"><EmotionSummary emotionCounts={emotionCounts} /></div>}
+            {Object.keys(emotionCounts).length > 0 && <div className="px-5"><EmotionSummary emotionCounts={emotionCounts} /></div>}
             <CategoryGrid data={categoryData} />
             <MobileHeatmap data={heatmapData} />
           </div>

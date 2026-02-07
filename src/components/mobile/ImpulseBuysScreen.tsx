@@ -30,50 +30,58 @@ export function ImpulseBuysScreen({ transactions, onBack }: ImpulseBuysScreenPro
   const peakTime = Object.entries(byTimeOfDay).sort((a, b) => b[1] - a[1])[0]?.[0] || 'evening';
 
   return (
-    <div className="flex flex-col min-h-full pb-24 px-4 sm:px-5 lg:px-8">
+    <div className="flex flex-col min-h-full pb-28 px-5">
       <div className="max-w-2xl mx-auto w-full">
         {/* Header */}
-        <div className="flex items-center gap-3 py-4">
+        <div className="flex items-center gap-4 py-5">
           <Button
             variant="ghost"
             size="icon"
             onClick={onBack}
-            className="h-10 w-10 rounded-xl"
+            className="h-11 w-11 rounded-2xl bg-secondary"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-5 w-5" strokeWidth={2} />
           </Button>
           <div>
-            <h1 className="text-xl font-semibold text-foreground tracking-tight">Impulse Buys</h1>
-            <p className="text-sm text-muted-foreground">Unplanned purchases this month</p>
+            <h1 className="text-xl font-bold text-foreground">Impulse Buys</h1>
+            <p className="text-sm text-muted-foreground font-medium">Unplanned purchases this month</p>
           </div>
         </div>
 
         {/* Summary Stats */}
         <div className="grid grid-cols-3 gap-3 mt-4">
-          <div className="rounded-2xl bg-card p-4 shadow-sm">
-            <Zap className="h-5 w-5 text-[hsl(var(--warning))] mb-2" />
+          <div className="rounded-[1.5rem] bg-card p-4 shadow-sm border border-border/50">
+            <div className="h-10 w-10 rounded-xl bg-[hsl(var(--warning))]/15 flex items-center justify-center mb-2">
+              <Zap className="h-5 w-5 text-[hsl(var(--warning))]" strokeWidth={2} />
+            </div>
             <p className="text-2xl font-bold text-foreground">{impulseBuys.length}</p>
-            <p className="text-xs text-muted-foreground">Total buys</p>
+            <p className="text-xs text-muted-foreground font-medium">Total buys</p>
           </div>
-          <div className="rounded-2xl bg-card p-4 shadow-sm">
-            <TrendingDown className="h-5 w-5 text-primary mb-2" />
+          <div className="rounded-[1.5rem] bg-card p-4 shadow-sm border border-border/50">
+            <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center mb-2">
+              <TrendingDown className="h-5 w-5 text-primary" strokeWidth={2} />
+            </div>
             <p className="text-2xl font-bold text-foreground">₹{avgAmount.toFixed(0)}</p>
-            <p className="text-xs text-muted-foreground">Avg amount</p>
+            <p className="text-xs text-muted-foreground font-medium">Avg amount</p>
           </div>
-          <div className="rounded-2xl bg-card p-4 shadow-sm">
-            <Clock className="h-5 w-5 text-[hsl(var(--success))] mb-2" />
+          <div className="rounded-[1.5rem] bg-card p-4 shadow-sm border border-border/50">
+            <div className="h-10 w-10 rounded-xl bg-[hsl(var(--success))]/15 flex items-center justify-center mb-2">
+              <Clock className="h-5 w-5 text-[hsl(var(--success))]" strokeWidth={2} />
+            </div>
             <p className="text-2xl font-bold text-foreground capitalize">{peakTime}</p>
-            <p className="text-xs text-muted-foreground">Peak time</p>
+            <p className="text-xs text-muted-foreground font-medium">Peak time</p>
           </div>
         </div>
 
         {/* Insight Card */}
-        <div className="mt-6 rounded-2xl border-l-4 border-[hsl(var(--warning))] bg-card p-4 shadow-sm">
-          <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-[hsl(var(--warning))] shrink-0 mt-0.5" />
+        <div className="mt-6 rounded-[1.5rem] border-l-4 border-[hsl(var(--warning))] bg-card p-5 shadow-sm border-y border-r border-border/50">
+          <div className="flex items-start gap-4">
+            <div className="h-10 w-10 rounded-xl bg-[hsl(var(--warning))]/15 flex items-center justify-center shrink-0">
+              <Info className="h-5 w-5 text-[hsl(var(--warning))]" strokeWidth={2} />
+            </div>
             <div>
-              <p className="text-sm font-medium text-foreground">Pattern Detected</p>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-base font-bold text-foreground">Pattern Detected</p>
+              <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">
                 Most of your impulse purchases happen during {peakTime} hours. 
                 Consider setting a "pause before purchase" reminder during this time.
               </p>
@@ -83,34 +91,36 @@ export function ImpulseBuysScreen({ transactions, onBack }: ImpulseBuysScreenPro
 
         {/* Transaction List */}
         <div className="mt-6 space-y-3">
-          <h2 className="text-sm font-medium text-muted-foreground">Recent Impulse Buys</h2>
+          <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Recent Impulse Buys</h2>
           {impulseBuys.map((txn, idx) => (
             <div
               key={txn.id}
-              className="flex items-center gap-3 rounded-2xl bg-card p-4 shadow-sm animate-fade-in"
+              className="flex items-center gap-4 rounded-[1.5rem] bg-card p-4 shadow-sm border border-border/50 animate-fade-in"
               style={{ animationDelay: `${idx * 50}ms` }}
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[hsl(var(--warning))]/10">
-                <Zap className="h-5 w-5 text-[hsl(var(--warning))]" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[hsl(var(--warning))]/15">
+                <Zap className="h-6 w-6 text-[hsl(var(--warning))]" strokeWidth={2} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">{txn.merchant}</p>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Calendar className="h-3 w-3" />
+                <p className="text-sm font-bold text-foreground truncate">{txn.merchant}</p>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium mt-0.5">
+                  <Calendar className="h-3.5 w-3.5" strokeWidth={2} />
                   <span>{format(txn.timestamp, 'MMM d')}</span>
                   <span className="text-border">•</span>
-                  <Clock className="h-3 w-3" />
+                  <Clock className="h-3.5 w-3.5" strokeWidth={2} />
                   <span className="capitalize">{txn.timeOfDay}</span>
                 </div>
               </div>
-              <p className="text-sm font-semibold text-foreground">-₹{txn.amount}</p>
+              <p className="text-base font-bold text-foreground">-₹{txn.amount}</p>
             </div>
           ))}
 
           {impulseBuys.length === 0 && (
-            <div className="text-center py-12">
-              <Zap className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
-              <p className="text-muted-foreground">No impulse buys detected</p>
+            <div className="text-center py-16">
+              <div className="h-20 w-20 rounded-[2rem] bg-secondary flex items-center justify-center mx-auto mb-5">
+                <Zap className="h-10 w-10 text-muted-foreground/50" strokeWidth={1.5} />
+              </div>
+              <p className="text-lg font-semibold text-muted-foreground">No impulse buys detected</p>
               <p className="text-sm text-muted-foreground/70 mt-1">Great job staying mindful!</p>
             </div>
           )}
