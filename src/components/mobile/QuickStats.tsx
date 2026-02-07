@@ -18,67 +18,65 @@ function QuickStat({ title, value, subtitle, change, icon: Icon, variant = 'prim
     <div 
       onClick={onClick}
       className={cn(
-        "relative overflow-hidden rounded-3xl p-5 transition-all duration-300 card-hover",
+        "relative overflow-hidden rounded-[1.75rem] p-5 transition-all duration-300 card-hover",
         variant === 'primary' 
-          ? "bg-gradient-to-br from-primary via-primary to-[hsl(260_80%_60%)] shadow-lg" 
-          : "bg-card shadow-md",
+          ? "bg-gradient-to-br from-primary via-primary to-[hsl(290_70%_55%)] shadow-lg shadow-primary/25" 
+          : "bg-card shadow-md border border-border/50",
         onClick && "cursor-pointer active:scale-[0.98]"
       )}
     >
       <div className="relative z-10">
         <div className="flex items-start justify-between">
           <div className={cn(
-            "flex h-11 w-11 items-center justify-center rounded-2xl",
+            "flex h-12 w-12 items-center justify-center rounded-2xl",
             variant === 'primary' 
               ? "bg-primary-foreground/20 backdrop-blur-sm" 
               : "bg-primary/10"
           )}>
             <Icon className={cn(
-              "h-5 w-5",
+              "h-6 w-6",
               variant === 'primary' ? "text-primary-foreground" : "text-primary"
-            )} strokeWidth={1.5} />
+            )} strokeWidth={2} />
           </div>
           
           {change !== undefined && (
             <div className={cn(
-              "flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium",
+              "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold",
               variant === 'primary'
-                ? isPositive 
-                  ? "bg-primary-foreground/20 text-primary-foreground" 
-                  : "bg-primary-foreground/20 text-primary-foreground"
+                ? "bg-primary-foreground/20 text-primary-foreground" 
                 : isPositive 
                   ? "bg-destructive/10 text-destructive" 
                   : "bg-[hsl(var(--success))]/10 text-[hsl(var(--success))]"
             )}>
               {isPositive ? (
-                <TrendingUp className="h-3 w-3" />
+                <TrendingUp className="h-3.5 w-3.5" strokeWidth={2.5} />
               ) : (
-                <TrendingDown className="h-3 w-3" />
+                <TrendingDown className="h-3.5 w-3.5" strokeWidth={2.5} />
               )}
               {Math.abs(change)}%
             </div>
           )}
         </div>
         
-        <div className="mt-4">
+        <div className="mt-5">
           <p className={cn(
             "text-3xl font-bold tracking-tight",
             variant === 'primary' ? "text-primary-foreground" : "text-foreground"
           )}>
             {value}
           </p>
-          <div className="flex items-center justify-between mt-1">
+          <div className="flex items-center justify-between mt-2">
             <div>
               <p className={cn(
-                "text-sm font-medium",
-                variant === 'primary' ? "text-primary-foreground/80" : "text-muted-foreground"
+                "text-sm font-semibold",
+                variant === 'primary' ? "text-primary-foreground/90" : "text-muted-foreground"
               )}>
                 {title}
               </p>
               {subtitle && (
                 <p className={cn(
-                  "text-xs",
-                  variant === 'primary' ? "text-primary-foreground/60" : "text-muted-foreground/80"
+                  "text-xs font-medium",
+                  variant === 'primary' ? "text-primary-foreground/70" : "text-muted-foreground/80"
                 )}>
                   {subtitle}
                 </p>
@@ -86,19 +84,19 @@ function QuickStat({ title, value, subtitle, change, icon: Icon, variant = 'prim
             </div>
             {onClick && (
               <ChevronRight className={cn(
-                "h-4 w-4",
-                variant === 'primary' ? "text-primary-foreground/60" : "text-muted-foreground"
-              )} />
+                "h-5 w-5",
+                variant === 'primary' ? "text-primary-foreground/70" : "text-muted-foreground"
+              )} strokeWidth={2} />
             )}
           </div>
         </div>
       </div>
       
-      {/* Decorative elements */}
+      {/* M3 Decorative elements */}
       {variant === 'primary' && (
         <>
-          <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary-foreground/10 blur-2xl" />
-          <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-primary-foreground/5 blur-xl" />
+          <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-primary-foreground/10 blur-2xl" />
+          <div className="absolute -bottom-8 -left-8 h-28 w-28 rounded-full bg-primary-foreground/5 blur-xl" />
         </>
       )}
     </div>
@@ -116,18 +114,18 @@ function MiniStat({ icon: Icon, value, label, color, onClick }: {
     <div 
       onClick={onClick}
       className={cn(
-        "flex items-center gap-3 rounded-2xl bg-card p-4 shadow-sm card-hover",
+        "flex items-center gap-3 rounded-[1.5rem] bg-card p-4 shadow-sm border border-border/50 card-hover",
         onClick && "cursor-pointer active:scale-[0.98]"
       )}
     >
-      <div className={cn("flex h-11 w-11 items-center justify-center rounded-xl", color)}>
-        <Icon className="h-5 w-5" strokeWidth={1.5} />
+      <div className={cn("flex h-12 w-12 items-center justify-center rounded-2xl", color)}>
+        <Icon className="h-5 w-5" strokeWidth={2} />
       </div>
       <div className="flex-1">
-        <p className="text-lg font-bold text-foreground tracking-tight">{value}</p>
-        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="text-xl font-bold text-foreground tracking-tight">{value}</p>
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
       </div>
-      {onClick && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+      {onClick && <ChevronRight className="h-5 w-5 text-muted-foreground" strokeWidth={2} />}
     </div>
   );
 }
@@ -148,8 +146,8 @@ export function QuickStats({
   insightCount = 3
 }: QuickStatsProps) {
   return (
-    <div className="px-4">
-      <div className="grid grid-cols-2 gap-3 max-w-2xl mx-auto">
+    <div className="px-5">
+      <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
         <QuickStat
           title="Total Spent"
           value={`₹${(totalSpent / 1000).toFixed(1)}K`}
@@ -170,19 +168,19 @@ export function QuickStats({
         />
       </div>
       
-      <div className="mt-3 grid grid-cols-2 gap-3 max-w-2xl mx-auto">
+      <div className="mt-4 grid grid-cols-2 gap-4 max-w-2xl mx-auto">
         <MiniStat
           icon={Target}
           value={String(patternCount)}
           label="Active Patterns"
-          color="bg-[hsl(var(--success))]/10 text-[hsl(var(--success))]"
+          color="bg-[hsl(var(--success))]/15 text-[hsl(var(--success))]"
           onClick={() => onNavigate?.('patterns')}
         />
         <MiniStat
           icon={Lightbulb}
           value={String(insightCount)}
           label="New Insights"
-          color="bg-primary/10 text-primary"
+          color="bg-primary/15 text-primary"
           onClick={() => onNavigate?.('insights')}
         />
       </div>

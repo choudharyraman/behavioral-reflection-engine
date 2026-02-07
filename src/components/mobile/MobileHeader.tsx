@@ -61,21 +61,21 @@ export function MobileHeader({ userName = 'User', onNotificationSettingsClick, o
   };
   
   return (
-    <header className="sticky top-0 z-40 glass safe-area-inset-top">
-      <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 max-w-2xl mx-auto">
-        <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50 safe-area-inset-top">
+      <div className="flex items-center justify-between px-5 py-4 max-w-2xl mx-auto">
+        <div className="flex items-center gap-4">
           <Avatar 
-            className="h-11 w-11 ring-2 ring-primary/10 shadow-md cursor-pointer hover:ring-primary/30 transition-all active:scale-95"
+            className="h-12 w-12 ring-2 ring-primary/20 shadow-lg cursor-pointer hover:ring-primary/40 transition-all duration-300 active:scale-95"
             onClick={onProfileClick}
           >
             <AvatarImage src="" />
-            <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold text-base">
+            <AvatarFallback className="bg-gradient-to-br from-primary to-[hsl(290_70%_55%)] text-primary-foreground font-bold text-lg">
               {userName.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="cursor-pointer" onClick={onProfileClick}>
-            <p className="text-xs font-medium text-muted-foreground">{greeting}</p>
-            <h1 className="text-base font-semibold text-foreground tracking-tight">{userName}</h1>
+            <p className="text-xs font-medium text-muted-foreground tracking-wide">{greeting}</p>
+            <h1 className="text-lg font-bold text-foreground">{userName}</h1>
           </div>
         </div>
 
@@ -85,12 +85,12 @@ export function MobileHeader({ userName = 'User', onNotificationSettingsClick, o
             variant="ghost" 
             size="icon" 
             onClick={toggleDarkMode}
-            className="h-10 w-10 rounded-full bg-card shadow-sm hover:shadow-md transition-all active:scale-95"
+            className="h-11 w-11 rounded-2xl bg-secondary hover:bg-secondary/80 transition-all duration-300 active:scale-95"
           >
             {isDark ? (
-              <Sun className="h-[18px] w-[18px] text-foreground" strokeWidth={1.5} />
+              <Sun className="h-5 w-5 text-foreground" strokeWidth={2} />
             ) : (
-              <Moon className="h-[18px] w-[18px] text-foreground" strokeWidth={1.5} />
+              <Moon className="h-5 w-5 text-foreground" strokeWidth={2} />
             )}
           </Button>
 
@@ -100,48 +100,52 @@ export function MobileHeader({ userName = 'User', onNotificationSettingsClick, o
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="relative h-10 w-10 rounded-full bg-card shadow-sm hover:shadow-md transition-shadow"
+                className="relative h-11 w-11 rounded-2xl bg-secondary hover:bg-secondary/80 transition-all duration-300"
               >
-                <Bell className="h-[18px] w-[18px] text-foreground" strokeWidth={1.5} />
+                <Bell className="h-5 w-5 text-foreground" strokeWidth={2} />
                 {unreadCount > 0 && (
-                  <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-primary ring-2 ring-background animate-pulse" />
+                  <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-background animate-pulse" />
                 )}
               </Button>
             </SheetTrigger>
-          <SheetContent side="right" className="w-full sm:max-w-md">
+          <SheetContent side="right" className="w-full sm:max-w-md rounded-l-3xl">
             <SheetHeader>
-              <SheetTitle>Notifications</SheetTitle>
+              <SheetTitle className="text-xl font-bold">Notifications</SheetTitle>
               <SheetDescription>
                 {unreadCount > 0 ? `${unreadCount} unread notifications` : 'All caught up!'}
               </SheetDescription>
             </SheetHeader>
             <div className="mt-6 space-y-3">
               {notifications.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <Bell className="h-12 w-12 text-muted-foreground/30 mb-4" />
-                  <p className="text-muted-foreground">No notifications</p>
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <div className="h-16 w-16 rounded-3xl bg-secondary flex items-center justify-center mb-4">
+                    <Bell className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <p className="text-muted-foreground font-medium">No notifications</p>
                 </div>
               ) : (
                 notifications.map((notif) => (
                   <div 
                     key={notif.id}
                     className={cn(
-                      "relative rounded-2xl p-4 transition-all cursor-pointer",
-                      notif.read ? "bg-muted/30" : "bg-primary/5 border-l-4 border-primary"
+                      "relative rounded-3xl p-4 transition-all duration-300 cursor-pointer",
+                      notif.read 
+                        ? "bg-secondary/50" 
+                        : "bg-primary/10 border-l-4 border-primary"
                     )}
                     onClick={() => markAsRead(notif.id)}
                   >
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="absolute right-2 top-2 h-6 w-6 rounded-full opacity-0 hover:opacity-100 transition-opacity"
+                      className="absolute right-2 top-2 h-7 w-7 rounded-full opacity-60 hover:opacity-100 transition-opacity"
                       onClick={(e) => { e.stopPropagation(); clearNotification(notif.id); }}
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-3.5 w-3.5" />
                     </Button>
-                    <h4 className="font-medium text-foreground pr-6">{notif.title}</h4>
-                    <p className="text-sm text-muted-foreground mt-1">{notif.message}</p>
-                    <p className="text-xs text-muted-foreground/60 mt-2">{notif.time}</p>
+                    <h4 className="font-semibold text-foreground pr-8">{notif.title}</h4>
+                    <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">{notif.message}</p>
+                    <p className="text-xs text-muted-foreground/60 mt-2 font-medium">{notif.time}</p>
                   </div>
                 ))
               )}

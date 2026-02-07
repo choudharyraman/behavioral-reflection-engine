@@ -3,114 +3,114 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Premium Apple-Inspired Design System
-   Clean, minimal, sophisticated */
+/* Material 3 Design System
+   Vibrant, expressive, rounded */
 
 @layer base {
   :root {
-    /* Pure, clean backgrounds */
-    --background: 0 0% 98%;
-    --foreground: 0 0% 9%;
+    /* M3 Surface tones - soft lavender tints */
+    --background: 270 30% 98%;
+    --foreground: 270 15% 12%;
 
-    /* Cards with subtle warmth */
+    /* Cards with elevated surfaces */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
+    --card-foreground: 270 15% 12%;
 
     /* Popover */
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
+    --popover-foreground: 270 15% 12%;
 
-    /* Premium blue accent */
-    --primary: 211 100% 50%;
+    /* M3 Primary - Vibrant purple */
+    --primary: 270 80% 55%;
     --primary-foreground: 0 0% 100%;
 
-    /* Subtle secondary */
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 32%;
+    /* M3 Secondary - Soft violet */
+    --secondary: 270 40% 94%;
+    --secondary-foreground: 270 60% 35%;
 
-    /* Muted tones */
-    --muted: 0 0% 94%;
-    --muted-foreground: 0 0% 45%;
+    /* M3 Muted tones */
+    --muted: 270 20% 94%;
+    --muted-foreground: 270 10% 45%;
 
-    /* Accent - subtle highlight */
-    --accent: 0 0% 96%;
-    --accent-foreground: 0 0% 9%;
+    /* M3 Accent - Tertiary violet */
+    --accent: 290 50% 93%;
+    --accent-foreground: 290 60% 30%;
 
     /* Destructive */
-    --destructive: 0 84% 60%;
+    --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders - barely there */
-    --border: 0 0% 91%;
-    --input: 0 0% 91%;
-    --ring: 211 100% 50%;
+    /* M3 Outlines */
+    --border: 270 15% 88%;
+    --input: 270 15% 88%;
+    --ring: 270 80% 55%;
 
-    --radius: 1rem;
+    --radius: 1.25rem;
 
-    /* Sidebar */
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 9%;
-    --sidebar-primary: 211 100% 50%;
+    /* Sidebar - M3 Navigation */
+    --sidebar-background: 270 30% 97%;
+    --sidebar-foreground: 270 15% 12%;
+    --sidebar-primary: 270 80% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 0 0% 9%;
-    --sidebar-border: 0 0% 91%;
-    --sidebar-ring: 211 100% 50%;
-    --sidebar: 0 0% 100%;
+    --sidebar-accent: 290 50% 93%;
+    --sidebar-accent-foreground: 290 60% 30%;
+    --sidebar-border: 270 15% 88%;
+    --sidebar-ring: 270 80% 55%;
+    --sidebar: 270 30% 97%;
 
-    /* Chart colors - harmonious palette */
-    --chart-1: 211 100% 50%;
-    --chart-2: 260 80% 60%;
-    --chart-3: 340 75% 55%;
-    --chart-4: 38 92% 50%;
-    --chart-5: 152 69% 40%;
+    /* M3 Chart colors - Vibrant harmonious palette */
+    --chart-1: 270 80% 55%;
+    --chart-2: 330 70% 55%;
+    --chart-3: 200 80% 50%;
+    --chart-4: 45 90% 55%;
+    --chart-5: 160 70% 45%;
 
     /* Typography */
-    --font-sans: 'SF Pro Display', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-sans: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-serif: 'Georgia', 'Times New Roman', serif;
     --font-mono: 'SF Mono', 'Menlo', 'Monaco', monospace;
 
-    /* Premium shadows - soft and diffused */
-    --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.02);
-    --shadow-xs: 0 1px 3px 0 hsl(0 0% 0% / 0.03);
-    --shadow-sm: 0 2px 8px 0 hsl(0 0% 0% / 0.04);
-    --shadow-md: 0 4px 16px 0 hsl(0 0% 0% / 0.06);
-    --shadow-lg: 0 8px 32px 0 hsl(0 0% 0% / 0.08);
-    --shadow-xl: 0 16px 48px 0 hsl(0 0% 0% / 0.1);
-    --shadow-2xl: 0 24px 64px 0 hsl(0 0% 0% / 0.12);
+    /* M3 Elevation shadows */
+    --shadow-2xs: 0 1px 2px 0 hsl(270 50% 20% / 0.03);
+    --shadow-xs: 0 1px 3px 0 hsl(270 50% 20% / 0.05);
+    --shadow-sm: 0 2px 8px -2px hsl(270 50% 20% / 0.08);
+    --shadow-md: 0 4px 16px -4px hsl(270 50% 20% / 0.12);
+    --shadow-lg: 0 8px 32px -8px hsl(270 50% 20% / 0.15);
+    --shadow-xl: 0 16px 48px -12px hsl(270 50% 20% / 0.2);
+    --shadow-2xl: 0 24px 64px -16px hsl(270 50% 20% / 0.25);
 
-    /* Semantic colors */
-    --success: 152 69% 40%;
+    /* M3 Semantic colors */
+    --success: 160 70% 40%;
     --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 9%;
-    --info: 211 100% 50%;
+    --warning: 40 95% 50%;
+    --warning-foreground: 40 100% 15%;
+    --info: 200 80% 50%;
     --info-foreground: 0 0% 100%;
 
     /* Pattern confidence */
-    --confidence-strong: 152 69% 40%;
-    --confidence-emerging: 38 92% 50%;
-    --confidence-weak: 0 0% 70%;
+    --confidence-strong: 160 70% 40%;
+    --confidence-emerging: 40 95% 50%;
+    --confidence-weak: 270 10% 60%;
 
-    /* Category colors - refined palette */
-    --category-food: 24 95% 53%;
-    --category-transport: 211 100% 50%;
-    --category-shopping: 280 65% 55%;
-    --category-entertainment: 340 75% 55%;
-    --category-bills: 220 14% 45%;
-    --category-health: 152 69% 40%;
+    /* M3 Category colors - Vibrant and distinct */
+    --category-food: 25 95% 55%;
+    --category-transport: 200 80% 50%;
+    --category-shopping: 330 70% 55%;
+    --category-entertainment: 290 70% 55%;
+    --category-bills: 220 20% 50%;
+    --category-health: 160 70% 45%;
 
-    /* Glass effect */
-    --glass-bg: hsl(0 0% 100% / 0.8);
-    --glass-border: hsl(0 0% 100% / 0.6);
+    /* M3 Glass effect */
+    --glass-bg: hsl(0 0% 100% / 0.85);
+    --glass-border: hsl(270 30% 90% / 0.8);
     
-    /* Premium gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(211 100% 50%), hsl(260 80% 60%));
-    --gradient-accent: linear-gradient(135deg, hsl(340 75% 55%), hsl(280 65% 55%));
-    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 98%));
-    --gradient-mesh: radial-gradient(at 40% 20%, hsl(211 100% 95%) 0px, transparent 50%), 
-                     radial-gradient(at 80% 0%, hsl(260 80% 95%) 0px, transparent 50%),
-                     radial-gradient(at 0% 50%, hsl(340 75% 95%) 0px, transparent 50%);
+    /* M3 Gradients - Vibrant purple theme */
+    --gradient-primary: linear-gradient(135deg, hsl(270 80% 55%), hsl(290 70% 55%));
+    --gradient-accent: linear-gradient(135deg, hsl(330 70% 55%), hsl(290 70% 55%));
+    --gradient-subtle: linear-gradient(180deg, hsl(270 30% 99%), hsl(270 30% 96%));
+    --gradient-mesh: radial-gradient(ellipse at 20% 0%, hsl(270 60% 92%) 0px, transparent 50%), 
+                     radial-gradient(ellipse at 80% 10%, hsl(290 50% 94%) 0px, transparent 40%),
+                     radial-gradient(ellipse at 0% 60%, hsl(330 40% 95%) 0px, transparent 50%);
   }
 
   .dark {
@@ -315,18 +315,48 @@
     }
   }
 
-  /* Pulse glow */
+  /* M3 Pulse glow */
   .pulse-glow {
     animation: pulseGlow 2s ease-in-out infinite;
   }
 
   @keyframes pulseGlow {
     0%, 100% { 
-      box-shadow: 0 0 20px hsl(211 100% 50% / 0.3); 
+      box-shadow: 0 0 20px hsl(270 80% 55% / 0.3); 
     }
     50% { 
-      box-shadow: 0 0 40px hsl(211 100% 50% / 0.5); 
+      box-shadow: 0 0 40px hsl(270 80% 55% / 0.5); 
     }
+  }
+  
+  /* M3 Container shape */
+  .m3-container {
+    border-radius: var(--radius);
+    background: hsl(var(--card));
+    box-shadow: var(--shadow-sm);
+  }
+  
+  /* M3 Filled button style */
+  .m3-filled {
+    background: var(--gradient-primary);
+    color: hsl(var(--primary-foreground));
+    border-radius: 1.5rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  
+  /* M3 Surface tint */
+  .m3-surface {
+    background: hsl(var(--card));
+    box-shadow: var(--shadow-sm);
+    border: 1px solid hsl(var(--border));
+  }
+  
+  /* M3 Outlined style */
+  .m3-outlined {
+    border: 1.5px solid hsl(var(--border));
+    background: transparent;
+    border-radius: 1.5rem;
   }
 }
 

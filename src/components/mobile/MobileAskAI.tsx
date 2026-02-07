@@ -224,27 +224,27 @@ export function MobileAskAI() {
       {/* Messages area */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 sm:px-5 lg:px-8 py-6 space-y-4"
+        className="flex-1 overflow-y-auto px-5 py-6 space-y-4"
       >
         <div className="max-w-2xl mx-auto">
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center py-8 animate-fade-in">
+          <div className="flex flex-col items-center justify-center h-full text-center py-12 animate-fade-in">
             <div className="relative">
-              <div className="flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-[1.5rem] sm:rounded-[2rem] bg-gradient-to-br from-primary/20 to-primary/10 mb-5 sm:mb-6">
-                <Sparkles className="h-10 w-10 sm:h-12 sm:w-12 text-primary" strokeWidth={1.5} />
+              <div className="flex h-24 w-24 items-center justify-center rounded-[2rem] bg-gradient-to-br from-primary/20 to-[hsl(290_70%_55%)]/20 mb-6">
+                <Sparkles className="h-12 w-12 text-primary" strokeWidth={1.5} />
               </div>
-              <div className="absolute -inset-4 rounded-[2.5rem] bg-primary/5 blur-xl -z-10" />
+              <div className="absolute -inset-6 rounded-[3rem] bg-primary/10 blur-2xl -z-10" />
             </div>
             
-            <h2 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
+            <h2 className="text-2xl font-bold text-foreground">
               Ask me anything
             </h2>
-            <p className="mt-2 text-sm sm:text-base text-muted-foreground max-w-xs leading-relaxed">
+            <p className="mt-3 text-base text-muted-foreground max-w-xs leading-relaxed">
               I can help you understand patterns, find insights, and reflect on your spending behavior.
             </p>
             
-            <div className="mt-8 sm:mt-10 w-full max-w-sm space-y-3">
-              <p className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <div className="mt-10 w-full max-w-sm space-y-4">
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                 Try asking
               </p>
               <div className="flex flex-wrap gap-2 justify-center">
@@ -252,7 +252,7 @@ export function MobileAskAI() {
                   <Button
                     key={question}
                     variant="outline"
-                    className="h-auto py-2 px-3 rounded-full text-xs border-border/50 hover:bg-primary/5 hover:border-primary/30 hover:text-primary transition-all animate-fade-in active:scale-[0.98]"
+                    className="h-auto py-2.5 px-4 rounded-full text-sm font-semibold border-2 border-border hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-all animate-fade-in active:scale-[0.98]"
                     style={{ animationDelay: `${idx * 100}ms` }}
                     onClick={() => handleSend(question)}
                   >
@@ -265,14 +265,14 @@ export function MobileAskAI() {
         ) : (
           <>
             {/* Clear chat button */}
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center mb-5">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleClearChat}
-                className="text-xs text-muted-foreground hover:text-foreground"
+                className="text-sm font-semibold text-muted-foreground hover:text-foreground rounded-full"
               >
-                <RefreshCw className="mr-1.5 h-3 w-3" />
+                <RefreshCw className="mr-2 h-4 w-4" />
                 Clear chat
               </Button>
             </div>
@@ -288,27 +288,27 @@ export function MobileAskAI() {
               >
                 <div
                   className={cn(
-                    "max-w-[90%] sm:max-w-[85%] rounded-2xl sm:rounded-3xl px-4 sm:px-5 py-3 sm:py-3.5",
+                    "max-w-[85%] rounded-[1.5rem] px-5 py-4",
                     message.role === 'user'
-                      ? 'bg-foreground text-background rounded-br-lg'
+                      ? 'bg-primary text-primary-foreground rounded-br-lg'
                       : message.error 
                         ? 'bg-destructive/10 text-destructive rounded-bl-lg'
-                        : 'bg-card text-foreground rounded-bl-lg shadow-sm'
+                        : 'bg-card text-foreground rounded-bl-lg shadow-sm border border-border/50'
                   )}
                 >
                   {message.error && (
                     <div className="flex items-center gap-2 mb-2">
-                      <AlertCircle className="h-4 w-4" />
-                      <span className="text-xs font-medium">Error</span>
+                      <AlertCircle className="h-4 w-4" strokeWidth={2} />
+                      <span className="text-xs font-bold">Error</span>
                     </div>
                   )}
-                  <p className="whitespace-pre-wrap text-sm sm:text-[15px] leading-relaxed">{message.content}</p>
+                  <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{message.content}</p>
                   {message.error && (
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleRetry(idx)}
-                      className="mt-2 text-xs"
+                      className="mt-2 text-xs font-semibold"
                     >
                       <RefreshCw className="mr-1.5 h-3 w-3" />
                       Retry
@@ -322,22 +322,22 @@ export function MobileAskAI() {
 
         {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
           <div className="flex justify-start animate-fade-in">
-            <div className="flex items-center gap-2 sm:gap-3 rounded-2xl sm:rounded-3xl bg-card px-4 sm:px-5 py-3 sm:py-4 shadow-sm">
-              <div className="flex gap-1">
-                <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }} />
+            <div className="flex items-center gap-3 rounded-[1.5rem] bg-card px-5 py-4 shadow-sm border border-border/50">
+              <div className="flex gap-1.5">
+                <div className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
-              <span className="text-xs sm:text-sm text-muted-foreground">Thinking...</span>
+              <span className="text-sm text-muted-foreground font-medium">Thinking...</span>
             </div>
           </div>
         )}
         </div>
       </div>
 
-      {/* Input area - Fixed at bottom */}
-      <div className="sticky bottom-20 glass border-t border-border/50 px-4 sm:px-5 lg:px-8 py-3 sm:py-4 safe-area-inset-bottom">
-        <div className="flex items-center gap-2 sm:gap-3 max-w-2xl mx-auto">
+      {/* M3 Input area - Fixed at bottom */}
+      <div className="sticky bottom-20 bg-background/90 backdrop-blur-xl border-t border-border/50 px-5 py-4 safe-area-inset-bottom">
+        <div className="flex items-center gap-3 max-w-2xl mx-auto">
           <div className="relative flex-1">
             <Input
               placeholder="Ask about your spending..."
@@ -350,26 +350,26 @@ export function MobileAskAI() {
                 }
               }}
               disabled={isLoading}
-              className="h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-card border-0 pr-10 sm:pr-12 text-sm sm:text-base shadow-sm"
+              className="h-14 rounded-full bg-secondary border-0 pr-12 text-base font-medium shadow-sm"
             />
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl hover:bg-primary/10"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full hover:bg-primary/10"
             >
-              <Mic className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" strokeWidth={1.5} />
+              <Mic className="h-5 w-5 text-muted-foreground" strokeWidth={2} />
             </Button>
           </div>
           <Button 
             onClick={() => handleSend()} 
             disabled={!input.trim() || isLoading}
             size="icon"
-            className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl sm:rounded-2xl bg-foreground hover:bg-foreground/90 shadow-md shrink-0 active:scale-95 transition-transform"
+            className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 shrink-0 active:scale-95 transition-transform"
           >
             {isLoading ? (
-              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+              <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
-              <Send className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Send className="h-5 w-5" />
             )}
           </Button>
         </div>
