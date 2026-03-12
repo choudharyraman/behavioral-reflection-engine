@@ -262,7 +262,7 @@ export function MobileScanDocument() {
                       <Progress value={cat.percentage} className="mt-2 h-1.5" />
                     </div>
                   </div>
-                )))}
+                ))}
               </div>
             </div>
           )}
