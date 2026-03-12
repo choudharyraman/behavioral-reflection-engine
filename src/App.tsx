@@ -49,6 +49,7 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+            <Route path="/docs" element={<Documentation />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
