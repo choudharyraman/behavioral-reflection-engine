@@ -297,7 +297,7 @@ export function MobileScanDocument() {
                   <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{insight.description}</p>
                   {insight.actionable && <p className="mt-3 text-sm font-semibold text-primary">💡 {insight.actionable}</p>}
                 </div>
-              )))}
+              ))}
             </div>
           )}
 
