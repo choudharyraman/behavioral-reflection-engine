@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Sparkles, Loader2, Mic, RefreshCw, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -22,43 +21,22 @@ const suggestedQuestions = [
   "Which days do I spend the most?",
 ];
 
-// SSE streaming chat function
-async function streamChat({
-  messages,
-  onDelta,
-  onDone,
-  onError,
-}: {
+async function streamChat({ messages, onDelta, onDone, onError }: {
   messages: Array<{ role: string; content: string }>;
   onDelta: (deltaText: string) => void;
   onDone: () => void;
   onError: (error: string) => void;
 }) {
   const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-ai`;
-
   try {
     const resp = await fetch(CHAT_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-      },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
       body: JSON.stringify({ messages }),
     });
-
-    if (resp.status === 429) {
-      onError("Rate limit exceeded. Please try again later.");
-      return;
-    }
-    if (resp.status === 402) {
-      onError("Usage limit reached. Please check your account.");
-      return;
-    }
-    if (!resp.ok || !resp.body) {
-      const errorData = await resp.json().catch(() => ({}));
-      onError(errorData.error || "Failed to get AI response");
-      return;
-    }
+    if (resp.status === 429) { onError("Rate limit exceeded. Please try again later."); return; }
+    if (resp.status === 402) { onError("Usage limit reached. Please check your account."); return; }
+    if (!resp.ok || !resp.body) { const errorData = await resp.json().catch(() => ({})); onError(errorData.error || "Failed to get AI response"); return; }
 
     const reader = resp.body.getReader();
     const decoder = new TextDecoder();
@@ -69,34 +47,22 @@ async function streamChat({
       const { done, value } = await reader.read();
       if (done) break;
       textBuffer += decoder.decode(value, { stream: true });
-
       let newlineIndex: number;
       while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
         let line = textBuffer.slice(0, newlineIndex);
         textBuffer = textBuffer.slice(newlineIndex + 1);
-
         if (line.endsWith("\r")) line = line.slice(0, -1);
         if (line.startsWith(":") || line.trim() === "") continue;
         if (!line.startsWith("data: ")) continue;
-
         const jsonStr = line.slice(6).trim();
-        if (jsonStr === "[DONE]") {
-          streamDone = true;
-          break;
-        }
-
+        if (jsonStr === "[DONE]") { streamDone = true; break; }
         try {
           const parsed = JSON.parse(jsonStr);
           const content = parsed.choices?.[0]?.delta?.content as string | undefined;
           if (content) onDelta(content);
-        } catch {
-          textBuffer = line + "\n" + textBuffer;
-          break;
-        }
+        } catch { textBuffer = line + "\n" + textBuffer; break; }
       }
     }
-
-    // Final flush
     if (textBuffer.trim()) {
       for (let raw of textBuffer.split("\n")) {
         if (!raw) continue;
@@ -105,14 +71,9 @@ async function streamChat({
         if (!raw.startsWith("data: ")) continue;
         const jsonStr = raw.slice(6).trim();
         if (jsonStr === "[DONE]") continue;
-        try {
-          const parsed = JSON.parse(jsonStr);
-          const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-          if (content) onDelta(content);
-        } catch { /* ignore */ }
+        try { const parsed = JSON.parse(jsonStr); const content = parsed.choices?.[0]?.delta?.content as string | undefined; if (content) onDelta(content); } catch {}
       }
     }
-
     onDone();
   } catch (error) {
     console.error("Stream error:", error);
@@ -127,32 +88,19 @@ export function MobileAskAI() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
 
   const handleSend = async (question?: string) => {
     const messageText = question || input.trim();
     if (!messageText || isLoading) return;
 
-    const userMessage: Message = {
-      id: `msg-${Date.now()}`,
-      role: 'user',
-      content: messageText,
-      timestamp: new Date(),
-    };
-
+    const userMessage: Message = { id: `msg-${Date.now()}`, role: 'user', content: messageText, timestamp: new Date() };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
-    // Build conversation history
-    const conversationHistory = messages.map(m => ({
-      role: m.role,
-      content: m.content
-    }));
-
+    const conversationHistory = messages.map(m => ({ role: m.role, content: m.content }));
     let assistantContent = "";
 
     const updateAssistantMessage = (chunk: string) => {
@@ -160,16 +108,9 @@ export function MobileAskAI() {
       setMessages(prev => {
         const last = prev[prev.length - 1];
         if (last?.role === 'assistant' && !last.error) {
-          return prev.map((m, i) => 
-            i === prev.length - 1 ? { ...m, content: assistantContent } : m
-          );
+          return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: assistantContent } : m);
         }
-        return [...prev, {
-          id: `msg-${Date.now()}`,
-          role: 'assistant' as const,
-          content: assistantContent,
-          timestamp: new Date(),
-        }];
+        return [...prev, { id: `msg-${Date.now()}`, role: 'assistant' as const, content: assistantContent, timestamp: new Date() }];
       });
     };
 
@@ -179,123 +120,69 @@ export function MobileAskAI() {
         onDelta: (chunk) => updateAssistantMessage(chunk),
         onDone: () => setIsLoading(false),
         onError: (errorMsg) => {
-          const errorMessage: Message = {
-            id: `msg-${Date.now()}`,
-            role: 'assistant',
-            content: errorMsg,
-            timestamp: new Date(),
-            error: true,
-          };
-          setMessages(prev => [...prev, errorMessage]);
+          setMessages(prev => [...prev, { id: `msg-${Date.now()}`, role: 'assistant', content: errorMsg, timestamp: new Date(), error: true }]);
           setIsLoading(false);
           toast.error('Failed to get AI response');
         },
       });
-    } catch (error) {
-      console.error('Chat error:', error);
-      const errorMessage: Message = {
-        id: `msg-${Date.now()}`,
-        role: 'assistant',
-        content: "Sorry, I couldn't process your request. Please try again.",
-        timestamp: new Date(),
-        error: true,
-      };
-      setMessages(prev => [...prev, errorMessage]);
+    } catch {
+      setMessages(prev => [...prev, { id: `msg-${Date.now()}`, role: 'assistant', content: "Sorry, I couldn't process your request. Please try again.", timestamp: new Date(), error: true }]);
       setIsLoading(false);
       toast.error('Failed to get AI response');
     }
   };
 
-  const handleClearChat = () => {
-    setMessages([]);
-    toast.success('Chat cleared');
-  };
-
+  const handleClearChat = () => { setMessages([]); toast.success('Chat cleared'); };
   const handleRetry = (messageIndex: number) => {
     const userMessage = messages[messageIndex - 1];
-    if (userMessage?.role === 'user') {
-      setMessages(prev => prev.slice(0, messageIndex));
-      handleSend(userMessage.content);
-    }
+    if (userMessage?.role === 'user') { setMessages(prev => prev.slice(0, messageIndex)); handleSend(userMessage.content); }
   };
 
   return (
     <div className="flex flex-col h-full">
-      {/* Messages area */}
-      <div 
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto px-5 py-6 space-y-4"
-      >
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-6 space-y-4">
         <div className="max-w-2xl mx-auto">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center py-12 animate-fade-in">
-            <div className="relative">
-              <div className="flex h-24 w-24 items-center justify-center rounded-[2rem] bg-gradient-to-br from-primary/20 to-[hsl(290_70%_55%)]/20 mb-6">
-                <Sparkles className="h-12 w-12 text-primary" strokeWidth={1.5} />
-              </div>
-              <div className="absolute -inset-6 rounded-[3rem] bg-primary/10 blur-2xl -z-10" />
+            <div className="flex h-24 w-24 items-center justify-center rounded-2xl neu-raised mb-6">
+              <Sparkles className="h-12 w-12 text-primary" strokeWidth={1.5} />
             </div>
-            
-            <h2 className="text-2xl font-bold text-foreground">
-              Ask me anything
-            </h2>
+            <h2 className="text-2xl font-bold text-foreground">Ask me anything</h2>
             <p className="mt-3 text-base text-muted-foreground max-w-xs leading-relaxed">
               I can help you understand patterns, find insights, and reflect on your spending behavior.
             </p>
-            
             <div className="mt-10 w-full max-w-sm space-y-4">
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                Try asking
-              </p>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Try asking</p>
               <div className="flex flex-wrap gap-2 justify-center">
                 {suggestedQuestions.map((question, idx) => (
-                  <Button
+                  <button
                     key={question}
-                    variant="outline"
-                    className="h-auto py-2.5 px-4 rounded-full text-sm font-semibold border-2 border-border hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-all animate-fade-in active:scale-[0.98]"
+                    className="h-auto py-2.5 px-4 rounded-xl text-sm font-semibold neu-button animate-fade-in active:scale-[0.98]"
                     style={{ animationDelay: `${idx * 100}ms` }}
                     onClick={() => handleSend(question)}
                   >
                     {question}
-                  </Button>
+                  </button>
                 ))}
               </div>
             </div>
           </div>
         ) : (
           <>
-            {/* Clear chat button */}
             <div className="flex justify-center mb-5">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleClearChat}
-                className="text-sm font-semibold text-muted-foreground hover:text-foreground rounded-full"
-              >
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Clear chat
-              </Button>
+              <button onClick={handleClearChat} className="text-sm font-semibold text-muted-foreground hover:text-foreground rounded-xl px-4 py-2 neu-button flex items-center gap-2">
+                <RefreshCw className="h-4 w-4" /> Clear chat
+              </button>
             </div>
-            
             {messages.map((message, idx) => (
-              <div
-                key={message.id}
-                className={cn(
-                  "flex animate-fade-in",
-                  message.role === 'user' ? 'justify-end' : 'justify-start'
-                )}
-                style={{ animationDelay: `${idx * 50}ms` }}
-              >
-                <div
-                  className={cn(
-                    "max-w-[85%] rounded-[1.5rem] px-5 py-4",
-                    message.role === 'user'
-                      ? 'bg-primary text-primary-foreground rounded-br-lg'
-                      : message.error 
-                        ? 'bg-destructive/10 text-destructive rounded-bl-lg'
-                        : 'bg-card text-foreground rounded-bl-lg shadow-sm border border-border/50'
-                  )}
-                >
+              <div key={message.id} className={cn("flex animate-fade-in", message.role === 'user' ? 'justify-end' : 'justify-start')} style={{ animationDelay: `${idx * 50}ms` }}>
+                <div className={cn("max-w-[85%] rounded-2xl px-5 py-4",
+                  message.role === 'user'
+                    ? 'bg-primary text-primary-foreground rounded-br-lg'
+                    : message.error
+                      ? 'bg-destructive/10 text-destructive rounded-bl-lg'
+                      : 'neu-raised rounded-bl-lg'
+                )}>
                   {message.error && (
                     <div className="flex items-center gap-2 mb-2">
                       <AlertCircle className="h-4 w-4" strokeWidth={2} />
@@ -304,15 +191,9 @@ export function MobileAskAI() {
                   )}
                   <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{message.content}</p>
                   {message.error && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRetry(idx)}
-                      className="mt-2 text-xs font-semibold"
-                    >
-                      <RefreshCw className="mr-1.5 h-3 w-3" />
-                      Retry
-                    </Button>
+                    <button onClick={() => handleRetry(idx)} className="mt-2 text-xs font-semibold flex items-center gap-1.5">
+                      <RefreshCw className="h-3 w-3" /> Retry
+                    </button>
                   )}
                 </div>
               </div>
@@ -322,7 +203,7 @@ export function MobileAskAI() {
 
         {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
           <div className="flex justify-start animate-fade-in">
-            <div className="flex items-center gap-3 rounded-[1.5rem] bg-card px-5 py-4 shadow-sm border border-border/50">
+            <div className="flex items-center gap-3 rounded-2xl px-5 py-4 neu-raised">
               <div className="flex gap-1.5">
                 <div className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }} />
                 <div className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -335,43 +216,29 @@ export function MobileAskAI() {
         </div>
       </div>
 
-      {/* M3 Input area - Fixed at bottom */}
-      <div className="sticky bottom-20 bg-background/90 backdrop-blur-xl border-t border-border/50 px-5 py-4 safe-area-inset-bottom">
+      {/* Input area */}
+      <div className="sticky bottom-20 bg-background px-5 py-4 safe-area-inset-bottom">
         <div className="flex items-center gap-3 max-w-2xl mx-auto">
           <div className="relative flex-1">
             <Input
               placeholder="Ask about your spending..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSend();
-                }
-              }}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
               disabled={isLoading}
-              className="h-14 rounded-full bg-secondary border-0 pr-12 text-base font-medium shadow-sm"
+              className="h-14 rounded-2xl border-0 pr-12 text-base font-medium neu-inset"
             />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full hover:bg-primary/10"
-            >
+            <button className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-xl neu-button flex items-center justify-center">
               <Mic className="h-5 w-5 text-muted-foreground" strokeWidth={2} />
-            </Button>
+            </button>
           </div>
-          <Button 
-            onClick={() => handleSend()} 
+          <button
+            onClick={() => handleSend()}
             disabled={!input.trim() || isLoading}
-            size="icon"
-            className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 shrink-0 active:scale-95 transition-transform"
+            className="h-14 w-14 rounded-2xl bg-primary text-primary-foreground shadow-lg flex items-center justify-center shrink-0 active:scale-95 transition-transform disabled:opacity-50"
           >
-            {isLoading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <Send className="h-5 w-5" />
-            )}
-          </Button>
+            {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+          </button>
         </div>
       </div>
     </div>
