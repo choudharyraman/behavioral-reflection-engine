@@ -189,7 +189,7 @@ export function MobileScanDocument() {
                   <button onClick={() => deleteHistoryItem(result.id)} className="h-10 w-10 rounded-xl neu-button flex items-center justify-center text-destructive"><Trash2 className="h-5 w-5" strokeWidth={2} /></button>
                 </div>
               </div>
-            )))}
+            ))}
           </div>
         </div>
       )}
