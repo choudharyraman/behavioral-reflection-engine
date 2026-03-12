@@ -316,7 +316,7 @@ export function MobileScanDocument() {
                     </div>
                     <p className="text-sm font-bold text-foreground">{formatCurrency(txn.amount)}</p>
                   </div>
-                )))}
+                ))}
               </div>
               {currentResult.transactions.length > 5 && (
                 <p className="text-sm text-center text-muted-foreground font-medium">+{currentResult.transactions.length - 5} more transactions</p>
