@@ -61,54 +61,50 @@ export function MobileHeader({ userName = 'User', onNotificationSettingsClick, o
   };
   
   return (
-    <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50 safe-area-inset-top">
+    <header className="sticky top-0 z-40 bg-background safe-area-inset-top">
       <div className="flex items-center justify-between px-5 py-4 max-w-2xl mx-auto">
         <div className="flex items-center gap-4">
-          <Avatar 
-            className="h-12 w-12 ring-2 ring-primary/20 shadow-lg cursor-pointer hover:ring-primary/40 transition-all duration-300 active:scale-95"
+          <div 
+            className="neu-raised rounded-full p-1 cursor-pointer active:scale-95 transition-transform"
             onClick={onProfileClick}
           >
-            <AvatarImage src="" />
-            <AvatarFallback className="bg-gradient-to-br from-primary to-[hsl(290_70%_55%)] text-primary-foreground font-bold text-lg">
-              {userName.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+            <Avatar className="h-12 w-12">
+              <AvatarImage src="" />
+              <AvatarFallback className="bg-gradient-to-br from-primary to-[hsl(230_80%_65%)] text-primary-foreground font-bold text-lg">
+                {userName.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </div>
           <div className="cursor-pointer" onClick={onProfileClick}>
             <p className="text-xs font-medium text-muted-foreground tracking-wide">{greeting}</p>
             <h1 className="text-lg font-bold text-foreground">{userName}</h1>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {/* Dark Mode Toggle */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <button 
             onClick={toggleDarkMode}
-            className="h-11 w-11 rounded-2xl bg-secondary hover:bg-secondary/80 transition-all duration-300 active:scale-95"
+            className="h-11 w-11 rounded-2xl neu-button flex items-center justify-center"
           >
             {isDark ? (
               <Sun className="h-5 w-5 text-foreground" strokeWidth={2} />
             ) : (
               <Moon className="h-5 w-5 text-foreground" strokeWidth={2} />
             )}
-          </Button>
+          </button>
 
           {/* Notifications */}
           <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
             <SheetTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="relative h-11 w-11 rounded-2xl bg-secondary hover:bg-secondary/80 transition-all duration-300"
-              >
+              <button className="relative h-11 w-11 rounded-2xl neu-button flex items-center justify-center">
                 <Bell className="h-5 w-5 text-foreground" strokeWidth={2} />
                 {unreadCount > 0 && (
                   <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-background animate-pulse" />
                 )}
-              </Button>
+              </button>
             </SheetTrigger>
-          <SheetContent side="right" className="w-full sm:max-w-md rounded-l-3xl">
+          <SheetContent side="right" className="w-full sm:max-w-md bg-background">
             <SheetHeader>
               <SheetTitle className="text-xl font-bold">Notifications</SheetTitle>
               <SheetDescription>
@@ -118,7 +114,7 @@ export function MobileHeader({ userName = 'User', onNotificationSettingsClick, o
             <div className="mt-6 space-y-3">
               {notifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <div className="h-16 w-16 rounded-3xl bg-secondary flex items-center justify-center mb-4">
+                  <div className="h-16 w-16 rounded-3xl neu-raised flex items-center justify-center mb-4">
                     <Bell className="h-8 w-8 text-muted-foreground" />
                   </div>
                   <p className="text-muted-foreground font-medium">No notifications</p>
@@ -128,21 +124,19 @@ export function MobileHeader({ userName = 'User', onNotificationSettingsClick, o
                   <div 
                     key={notif.id}
                     className={cn(
-                      "relative rounded-3xl p-4 transition-all duration-300 cursor-pointer",
+                      "relative rounded-2xl p-4 transition-all duration-300 cursor-pointer",
                       notif.read 
-                        ? "bg-secondary/50" 
-                        : "bg-primary/10 border-l-4 border-primary"
+                        ? "neu-inset-sm" 
+                        : "neu-raised-sm border-l-4 border-primary"
                     )}
                     onClick={() => markAsRead(notif.id)}
                   >
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-2 top-2 h-7 w-7 rounded-full opacity-60 hover:opacity-100 transition-opacity"
+                    <button
+                      className="absolute right-2 top-2 h-7 w-7 rounded-full neu-button flex items-center justify-center opacity-60 hover:opacity-100"
                       onClick={(e) => { e.stopPropagation(); clearNotification(notif.id); }}
                     >
                       <X className="h-3.5 w-3.5" />
-                    </Button>
+                    </button>
                     <h4 className="font-semibold text-foreground pr-8">{notif.title}</h4>
                     <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">{notif.message}</p>
                     <p className="text-xs text-muted-foreground/60 mt-2 font-medium">{notif.time}</p>
