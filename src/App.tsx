@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Documentation from "./pages/Documentation";
+import ProductBuildDocument from "./pages/ProductBuildDocument";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ const App = () => (
               } 
             />
             <Route path="/docs" element={<Documentation />} />
+            <Route path="/product-build" element={<ProductBuildDocument />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

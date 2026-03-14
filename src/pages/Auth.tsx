@@ -154,16 +154,14 @@ export default function Auth() {
             </div>
           </div>
 
-          {/* Docs link */}
-          <button onClick={() => navigate('/docs')} className="mx-auto mt-6 flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-            <FileText className="h-4 w-4" strokeWidth={2} /> View Documentation
-          </button>
-
           <div className="mt-6 text-center space-y-3">
             <p className="text-xs text-muted-foreground leading-relaxed">
               By continuing, you agree to our <button className="text-foreground hover:text-primary hover:underline">Terms of Service</button> and <button className="text-foreground hover:text-primary hover:underline">Privacy Policy</button>
             </p>
             <p className="text-xs text-muted-foreground/60">Built by <span className="font-medium text-muted-foreground">Raman Choudhary</span></p>
+            <button onClick={() => navigate('/docs')} className="mx-auto flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+              <FileText className="h-4 w-4" strokeWidth={2} /> View Documentation
+            </button>
           </div>
         </div>
       </div>
