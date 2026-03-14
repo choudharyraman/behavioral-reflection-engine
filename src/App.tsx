@@ -51,6 +51,7 @@ const App = () => (
               } 
             />
             <Route path="/docs" element={<Documentation />} />
+            <Route path="/product-build" element={<ProductBuildDocument />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
