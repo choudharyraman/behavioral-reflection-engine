@@ -66,6 +66,27 @@ export default function Auth() {
             </button>
           )}
 
+          {/* Test User Info Popup */}
+          {showTestInfo && (
+            <div className="mb-4 rounded-2xl border border-primary/20 bg-primary/5 backdrop-blur-xl p-4 relative animate-fade-in">
+              <button onClick={() => setShowTestInfo(false)} className="absolute top-2 right-2 p-1 rounded-full hover:bg-primary/10 transition-colors">
+                <XIcon className="h-3.5 w-3.5 text-muted-foreground" />
+              </button>
+              <div className="flex items-start gap-3 pr-4">
+                <div className="mt-0.5 h-8 w-8 rounded-xl neu-raised flex items-center justify-center shrink-0">
+                  <Info className="h-4 w-4 text-primary" />
+                </div>
+                <div className="text-sm">
+                  <p className="font-semibold text-foreground mb-1">Test User Login</p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Email: <span className="font-mono text-xs text-primary">testuser@example.com</span><br />
+                    Password: <span className="font-mono text-xs text-primary">Test@123#</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Neumorphic Card */}
           <div className="rounded-3xl p-8 neu-raised">
             <div className="text-center mb-8">
