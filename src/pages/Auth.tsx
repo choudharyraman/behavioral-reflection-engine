@@ -26,6 +26,7 @@ export default function Auth() {
   const [authMode, setAuthMode] = useState<AuthMode>('signin');
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [showTestInfo, setShowTestInfo] = useState(true);
 
   useEffect(() => { if (user && !loading) navigate('/'); }, [user, loading, navigate]);
 
