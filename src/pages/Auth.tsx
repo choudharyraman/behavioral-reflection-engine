@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight, ArrowLeft, FileText } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, ArrowLeft, FileText, Info, X as XIcon } from 'lucide-react';
 import { z } from 'zod';
 import { cn } from '@/lib/utils';
 import logoImage from '@/assets/logo.png';
