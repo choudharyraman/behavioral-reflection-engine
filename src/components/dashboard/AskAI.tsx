@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { MessageCircle, Send, Sparkles, Loader2 } from 'lucide-react';
+import { MessageCircle, Send, Sparkles, Loader2, Zap, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface Message {
   id: string;
@@ -13,10 +15,10 @@ interface Message {
 }
 
 const suggestedQuestions = [
-  "Why did I overspend last week?",
-  "What are my biggest spending habits?",
-  "When do I tend to impulse buy?",
-  "How has my spending changed this month?",
+  "Where did I overspend this month?",
+  "How can I save ₹5,000 next month?",
+  "What are my biggest spending leaks?",
+  "Compare this month vs last month",
 ];
 
 export function AskAI() {
@@ -24,57 +26,89 @@ export function AskAI() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const callCopilot = async (
+    convo: Message[],
+    mode: 'chat' | 'auto_insights' = 'chat',
+  ) => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('expense-copilot', {
+        body: {
+          mode,
+          messages: convo.map(m => ({ role: m.role, content: m.content })),
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      const aiMessage: Message = {
+        id: `msg-${Date.now()}`,
+        role: 'assistant',
+        content: data?.reply ?? "Sorry, I couldn't generate a response.",
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (err) {
+      console.error('Copilot error', err);
+      toast.error(err instanceof Error ? err.message : 'Copilot is unavailable right now.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSend = async (question?: string) => {
     const messageText = question || input.trim();
-    if (!messageText) return;
-
+    if (!messageText || isLoading) return;
     const userMessage: Message = {
       id: `msg-${Date.now()}`,
       role: 'user',
       content: messageText,
       timestamp: new Date(),
     };
-
-    setMessages(prev => [...prev, userMessage]);
+    const next = [...messages, userMessage];
+    setMessages(next);
     setInput('');
-    setIsLoading(true);
-
-    // Simulate AI response
-    setTimeout(() => {
-      const responses: Record<string, string> = {
-        "Why did I overspend last week?": 
-          "Last week, you made 8 food delivery orders—6 of them between 9-11 PM. This is higher than your usual 3-4 orders per week. It also coincided with the week before your salary date, when you tend to have less cash available for cooking supplies. Would you like to add a context tag to these transactions?",
-        "What are my biggest spending habits?": 
-          "Based on the last 3 months, your top spending patterns are:\n\n1. **Late-night food delivery** (₹4,560/month) - You order food after 9 PM on 60% of weekdays\n2. **Weekend shopping** (₹3,200/month) - Shopping transactions peak on Saturdays\n3. **Morning coffee ritual** (₹720/month) - Consistent coffee purchases on Tuesday and Thursday mornings\n\nWould you like to explore any of these patterns further?",
-        "When do I tend to impulse buy?": 
-          "We noticed impulse buying clusters in these situations:\n\n• **Late weekday evenings** (9-11 PM) - Often food delivery after work\n• **First week after salary** - Entertainment and shopping spikes\n• **Weekends** - Multiple small shopping transactions in quick succession\n\nYour impulse transactions are typically under ₹500 and happen within 20-30 minute windows.",
-        "How has my spending changed this month?": 
-          "Compared to last month:\n\n📈 **Increased**: Entertainment (+23%), Food delivery (+15%)\n📉 **Decreased**: Shopping (-12%), Transport (-5%)\n➡️ **Stable**: Bills, Health\n\nThe entertainment increase coincides with new streaming subscriptions. Food delivery increased particularly in the late-night hours.",
-      };
-
-      const aiMessage: Message = {
-        id: `msg-${Date.now()}`,
-        role: 'assistant',
-        content: responses[messageText] || 
-          "I can help you understand your spending patterns better. Based on your transaction history, I can identify when you tend to spend more, what triggers certain purchases, and how your habits have evolved over time. What would you like to know?",
-        timestamp: new Date(),
-      };
-
-      setMessages(prev => [...prev, aiMessage]);
-      setIsLoading(false);
-    }, 1500);
+    await callCopilot(next, 'chat');
   };
+
+  const handleAutoInsights = async () => {
+    if (isLoading) return;
+    const userMessage: Message = {
+      id: `msg-${Date.now()}`,
+      role: 'user',
+      content: '⚡ Run auto-insights on my recent spending',
+      timestamp: new Date(),
+    };
+    const next = [...messages, userMessage];
+    setMessages(next);
+    await callCopilot(next, 'auto_insights');
+  };
+
+  const handleClear = () => setMessages([]);
 
   return (
     <Card className="flex h-[600px] flex-col">
       <CardHeader className="shrink-0">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <MessageCircle className="h-5 w-5 text-primary" />
-          Ask About Your Spending
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Have a conversation about your spending patterns
-        </p>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <MessageCircle className="h-5 w-5 text-primary" />
+              Smart Expense Copilot
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Context-aware decisions, powered by Claude
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={handleAutoInsights} disabled={isLoading}>
+              <Zap className="h-4 w-4 mr-1.5" /> Auto-insights
+            </Button>
+            {messages.length > 0 && (
+              <Button variant="ghost" size="sm" onClick={handleClear} disabled={isLoading}>
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </div>
       </CardHeader>
 
       <CardContent className="flex flex-1 flex-col overflow-hidden">
