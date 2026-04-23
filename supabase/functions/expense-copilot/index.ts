@@ -354,6 +354,18 @@ serve(async (req) => {
       if (!resp.ok) {
         const t = await resp.text();
         console.error("Claude error", resp.status, t);
+        if (resp.status === 400 && t.includes("credit balance")) {
+          return new Response(
+            JSON.stringify({
+              error:
+                "Your Anthropic account has no credits. Add credits at console.anthropic.com → Plans & Billing.",
+            }),
+            {
+              status: 402,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            },
+          );
+        }
         if (resp.status === 429) {
           return new Response(
             JSON.stringify({ error: "Rate limit. Try again shortly." }),
