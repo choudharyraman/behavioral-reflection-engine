@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { LayoutGrid, TrendingUp, History, Scan, Sparkles } from 'lucide-react';
+import { LayoutGrid, TrendingUp, History, Scan, Bot } from 'lucide-react';
 
 interface MobileNavBarProps {
   activeTab: string;
@@ -9,7 +9,7 @@ interface MobileNavBarProps {
 const navItems = [
   { id: 'overview', label: 'Home', icon: LayoutGrid },
   { id: 'patterns', label: 'Patterns', icon: TrendingUp },
-  { id: 'ask', label: 'Ask AI', icon: Sparkles, isCenter: true },
+  { id: 'ask', label: 'Agent', icon: Bot, isCenter: true },
   { id: 'transactions', label: 'History', icon: History },
   { id: 'scan', label: 'Scan', icon: Scan },
 ];
