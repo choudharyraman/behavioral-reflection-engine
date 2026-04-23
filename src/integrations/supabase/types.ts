@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      copilot_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          preferences: Json
+          salary: number | null
+          savings_goal: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          preferences?: Json
+          salary?: number | null
+          savings_goal?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          preferences?: Json
+          salary?: number | null
+          savings_goal?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       deviation_events: {
         Row: {
           acknowledged: boolean | null
