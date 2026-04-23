@@ -1,5 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LayoutGrid, TrendingUp, History, MessageCircle, FileSearch } from 'lucide-react';
+import { LayoutGrid, TrendingUp, History, Bot, FileSearch } from 'lucide-react';
 
 interface TabNavProps {
   activeTab: string;
@@ -42,8 +42,8 @@ export function TabNav({ activeTab, onTabChange }: TabNavProps) {
           value="ask"
           className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
         >
-          <MessageCircle className="h-4 w-4" />
-          <span className="hidden sm:inline">Ask AI</span>
+          <Bot className="h-4 w-4" />
+          <span className="hidden sm:inline">Expense Agent</span>
         </TabsTrigger>
       </TabsList>
     </Tabs>
