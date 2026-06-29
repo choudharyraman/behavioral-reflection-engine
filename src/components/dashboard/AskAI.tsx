@@ -136,7 +136,7 @@ export function AskAI() {
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground">
-                Claude 3.5 Sonnet · context-aware · with memory
+                Gemini 3.5 · context-aware · with memory
               </p>
             </div>
           </div>

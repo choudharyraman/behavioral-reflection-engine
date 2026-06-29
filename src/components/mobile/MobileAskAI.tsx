@@ -155,7 +155,7 @@ export function MobileAskAI() {
                   </span>
                 </div>
                 <p className="text-[11px] font-medium text-muted-foreground">
-                  Claude 3.5 · with memory
+                  Gemini 3.5 · with memory
                 </p>
               </div>
             </div>
