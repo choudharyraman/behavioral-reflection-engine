@@ -172,7 +172,7 @@ export function MobileAskAI() {
         </div>
       </div>
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 pb-4">
+      <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-5 pb-4">
         <div className="mx-auto max-w-2xl">
           {messages.length === 0 ? (
             <div className="space-y-5 py-2 animate-fade-in">
@@ -242,7 +242,7 @@ export function MobileAskAI() {
       </div>
 
       {/* Composer */}
-      <div className="sticky bottom-20 bg-background px-5 py-3 safe-area-inset-bottom">
+      <div className="shrink-0 bg-background px-5 py-3 mb-20 safe-area-inset-bottom border-t border-border/40">
         <div className="mx-auto flex max-w-2xl items-center gap-2 rounded-2xl neu-inset p-2">
           <Input
             placeholder="Ask the agent…"
