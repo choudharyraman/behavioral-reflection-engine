@@ -7,8 +7,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
-const MODEL = "claude-3-5-sonnet-20241022";
+const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const MODEL = "google/gemini-3.5-flash";
 
 interface CopilotRequest {
   messages: Array<{ role: "user" | "assistant"; content: string }>;
@@ -198,28 +198,31 @@ RULES
 }
 
 const SAVE_PREFERENCE_TOOL = {
-  name: "save_preference",
-  description:
-    "Persist a fact you just learned about the user (salary, savings goal, or a free-form behavioral preference like 'prefer cutting subscriptions over food'). Call whenever the user states or updates one of these.",
-  input_schema: {
-    type: "object",
-    properties: {
-      salary: {
-        type: "number",
-        description: "Monthly take-home salary in user's currency.",
-      },
-      savings_goal: {
-        type: "number",
-        description: "Monthly savings goal in user's currency.",
-      },
-      preference: {
-        type: "string",
-        description:
-          "A short behavioral preference, e.g. 'prefer cutting subscriptions over food'.",
-      },
-      notes: {
-        type: "string",
-        description: "Any other free-form note worth remembering.",
+  type: "function",
+  function: {
+    name: "save_preference",
+    description:
+      "Persist a fact you just learned about the user (salary, savings goal, or a free-form behavioral preference like 'prefer cutting subscriptions over food'). Call whenever the user states or updates one of these.",
+    parameters: {
+      type: "object",
+      properties: {
+        salary: {
+          type: "number",
+          description: "Monthly take-home salary in user's currency.",
+        },
+        savings_goal: {
+          type: "number",
+          description: "Monthly savings goal in user's currency.",
+        },
+        preference: {
+          type: "string",
+          description:
+            "A short behavioral preference, e.g. 'prefer cutting subscriptions over food'.",
+        },
+        notes: {
+          type: "string",
+          description: "Any other free-form note worth remembering.",
+        },
       },
     },
   },
@@ -262,24 +265,25 @@ async function applyPreferenceTool(
   return { saved: true };
 }
 
-async function callClaude(
+async function callModel(
   apiKey: string,
   systemPrompt: string,
   messages: any[],
 ) {
-  const resp = await fetch(ANTHROPIC_URL, {
+  const resp = await fetch(GATEWAY_URL, {
     method: "POST",
     headers: {
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json",
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       model: MODEL,
       max_tokens: 1200,
-      system: systemPrompt,
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...messages,
+      ],
       tools: [SAVE_PREFERENCE_TOOL],
-      messages,
     }),
   });
   return resp;
@@ -294,11 +298,11 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
+    const lovableKey = Deno.env.get("LOVABLE_API_KEY");
 
-    if (!anthropicKey) {
+    if (!lovableKey) {
       return new Response(
-        JSON.stringify({ error: "ANTHROPIC_API_KEY not configured" }),
+        JSON.stringify({ error: "LOVABLE_API_KEY not configured" }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -347,18 +351,18 @@ serve(async (req) => {
     }
 
     // Tool loop: up to 3 rounds
-    let final: any = null;
+    let finalMessage: any = null;
     let workingMessages = messages.slice();
     for (let round = 0; round < 3; round++) {
-      const resp = await callClaude(anthropicKey, systemPrompt, workingMessages);
+      const resp = await callModel(lovableKey, systemPrompt, workingMessages);
       if (!resp.ok) {
         const t = await resp.text();
-        console.error("Claude error", resp.status, t);
-        if (resp.status === 400 && t.includes("credit balance")) {
+        console.error("AI gateway error", resp.status, t);
+        if (resp.status === 402) {
           return new Response(
             JSON.stringify({
               error:
-                "Your Anthropic account has no credits. Add credits at console.anthropic.com → Plans & Billing.",
+                "AI usage credits exhausted. Add credits in your workspace billing settings.",
             }),
             {
               status: 402,
@@ -375,15 +379,6 @@ serve(async (req) => {
             },
           );
         }
-        if (resp.status === 401) {
-          return new Response(
-            JSON.stringify({ error: "Invalid Anthropic API key." }),
-            {
-              status: 401,
-              headers: { ...corsHeaders, "Content-Type": "application/json" },
-            },
-          );
-        }
         return new Response(
           JSON.stringify({ error: "AI provider error" }),
           {
@@ -393,43 +388,59 @@ serve(async (req) => {
         );
       }
       const data = await resp.json();
-      const toolUses = (data.content ?? []).filter(
-        (b: any) => b.type === "tool_use",
-      );
-      if (toolUses.length === 0 || data.stop_reason !== "tool_use") {
-        final = data;
+      const message = data.choices?.[0]?.message;
+      if (!message) {
+        return new Response(
+          JSON.stringify({ error: "Invalid AI response format" }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      const toolCalls = message.tool_calls ?? [];
+      if (toolCalls.length === 0) {
+        finalMessage = message;
         break;
       }
-      // Append assistant message verbatim, then tool results
-      workingMessages.push({ role: "assistant", content: data.content });
+
+      // Append assistant message with tool_calls
+      workingMessages.push({
+        role: "assistant",
+        content: message.content,
+        tool_calls: toolCalls,
+      });
+
+      // Execute tools and append results
       const toolResults: any[] = [];
-      for (const t of toolUses) {
-        if (t.name === "save_preference") {
-          const result = await applyPreferenceTool(admin, userId, t.input ?? {});
+      for (const t of toolCalls) {
+        if (t.function?.name === "save_preference") {
+          let parsedInput: any = {};
+          try {
+            parsedInput = JSON.parse(t.function.arguments || "{}");
+          } catch {
+            parsedInput = {};
+          }
+          const result = await applyPreferenceTool(admin, userId, parsedInput);
           toolResults.push({
-            type: "tool_result",
-            tool_use_id: t.id,
+            role: "tool",
+            tool_call_id: t.id,
             content: JSON.stringify(result),
           });
         } else {
           toolResults.push({
-            type: "tool_result",
-            tool_use_id: t.id,
+            role: "tool",
+            tool_call_id: t.id,
             content: JSON.stringify({ error: "unknown tool" }),
-            is_error: true,
           });
         }
       }
-      workingMessages.push({ role: "user", content: toolResults });
-      final = data;
+      workingMessages.push(...toolResults);
+      finalMessage = message;
     }
 
-    const text =
-      (final?.content ?? [])
-        .filter((b: any) => b.type === "text")
-        .map((b: any) => b.text)
-        .join("\n") ||
-      "Sorry, I couldn't generate a response.";
+    const text = finalMessage?.content || "Sorry, I couldn't generate a response.";
 
     return new Response(
       JSON.stringify({
