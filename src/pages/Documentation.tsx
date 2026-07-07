@@ -1,4 +1,4 @@
-import { ArrowLeft, Brain, Scan, MessageCircle, Shield, Database, Cpu, TrendingUp, Zap, Eye, FileText, BarChart3, Bell, BookOpen } from 'lucide-react';
+import { ArrowLeft, Brain, Scan, MessageCircle, Shield, Database, Cpu, TrendingUp, Zap, Eye, FileText, BarChart3, Bell, BookOpen, FileCode } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Documentation() {
@@ -67,6 +67,20 @@ export default function Documentation() {
             <p className="text-sm text-muted-foreground font-medium">Everything about SpendAI</p>
           </div>
         </div>
+
+        <button
+          onClick={() => navigate('/product-build')}
+          className="w-full mb-4 rounded-2xl neu-raised p-5 flex items-center gap-4 hover:scale-[0.99] transition-transform text-left"
+        >
+          <div className="h-11 w-11 rounded-xl neu-inset-sm flex items-center justify-center shrink-0">
+            <FileCode className="h-5 w-5 text-primary" strokeWidth={2} />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-base font-bold text-foreground">Product Build Document</h3>
+            <p className="text-xs text-muted-foreground font-medium">Full technical build breakdown & architecture</p>
+          </div>
+          <span className="text-muted-foreground text-lg">→</span>
+        </button>
 
         <div className="space-y-4">
           {sections.map((section, idx) => {
