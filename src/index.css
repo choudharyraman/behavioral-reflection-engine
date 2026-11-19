@@ -8,6 +8,7 @@
 
 @layer base {
   :root {
+    --app-mobile-width: 430px;
     /* Neumorphic base - soft blue-grey */
     --background: 220 25% 92%;
     --foreground: 220 25% 15%;
@@ -172,6 +173,26 @@
 }
 
 @layer utilities {
+  /* Keep the signed-in experience phone-sized, including fixed controls. */
+  .mobile-app-shell {
+    width: min(100%, var(--app-mobile-width));
+    height: 100dvh;
+    margin-inline: auto;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .mobile-app-fixed {
+    width: min(100%, var(--app-mobile-width));
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
+
+  .agent-composer {
+    bottom: calc(8.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
   /* Neumorphic raised element */
   .neu-raised {
     background: hsl(var(--background));

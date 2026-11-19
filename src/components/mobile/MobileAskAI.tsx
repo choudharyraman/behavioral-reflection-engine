@@ -241,8 +241,8 @@ export function MobileAskAI() {
         </div>
       </div>
 
-      {/* Composer - fixed above bottom nav (h-20 = 80px) plus FAB clearance */}
-      <div className="fixed inset-x-0 bottom-24 z-40 bg-background/95 backdrop-blur-md px-5 py-3 safe-area-inset-bottom border-t border-border/40">
+      {/* Keep the composer above the navigation and its raised center button. */}
+      <div className="mobile-app-fixed agent-composer fixed z-40 bg-background/95 backdrop-blur-md px-5 py-3 safe-area-inset-bottom border-t border-border/40">
         <div className="mx-auto flex max-w-2xl items-center gap-2 rounded-2xl neu-inset p-2">
           <Input
             placeholder="Ask the agent…"

@@ -168,7 +168,7 @@ const Index = () => {
   const displayName = profile?.full_name || profile?.email?.split('@')[0] || 'User';
 
   return (
-    <div className="min-h-screen bg-background mesh-gradient flex flex-col">
+    <div className="mobile-app-shell bg-background mesh-gradient flex flex-col">
       {activeTab === 'overview' && (
         <MobileHeader 
           userName={displayName} 
@@ -177,7 +177,7 @@ const Index = () => {
         />
       )}
       
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 min-h-0 overflow-y-auto">
         {activeTab === 'overview' && (
           <div className="space-y-6 pb-28 pt-4">
             <QuickStats 

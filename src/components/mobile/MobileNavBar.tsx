@@ -16,7 +16,7 @@ const navItems = [
 
 export function MobileNavBar({ activeTab, onTabChange }: MobileNavBarProps) {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background safe-area-inset-bottom">
+    <nav className="mobile-app-fixed fixed bottom-0 z-50 bg-background safe-area-inset-bottom">
       <div className="py-2 max-w-lg mx-auto flex items-center justify-center px-3">
         {/* Neumorphic nav container */}
         <div className="flex items-center justify-around w-full rounded-2xl neu-raised-sm py-2 px-1">
